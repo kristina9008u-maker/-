@@ -127,7 +127,7 @@ body {
 .full-view-header {
     background: linear-gradient(135deg, #1b5e20, #2e7d32);
     color: white;
-    padding: 14px 16px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -136,19 +136,36 @@ body {
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
-.full-view-header h2 {
+.header-view-title {
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 800;
+    text-align: center;
+    flex: 1;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .btn-back-header {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.22);
     color: white;
-    border: none;
-    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 7px 14px;
     border-radius: 10px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.btn-back-header:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.35);
+}
+.header-spacer {
+    width: 70px;
+    flex-shrink: 0;
 }
 .full-view-body {
     padding: 16px;
