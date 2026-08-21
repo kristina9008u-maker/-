@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Зелёный Урожай — Сити-ферма микрозелени</title>
+    <!-- Telegram WebApp JS SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Шапка витрины -->
+        <header class="header">
+            <div class="logo-container">
+                <span class="logo-icon">🌱</span>
+                <div>
+                    <h1 class="title">Зелёный Урожай</h1>
+                    <p class="subtitle">Свежая микрозелень с эко-фермы</p>
+                </div>
+            </div>
+        </header>
+        <!-- Навигация по категориям -->
+        <nav class="categories">
+            <button class="cat-btn active" data-category="all">Все товары</button>
+            <button class="cat-btn" data-category="live_trays">🌱 Живые лотки</button>
+            <button class="cat-btn" data-category="cut_greens">✂️ Срезка</button>
+            <button class="cat-btn" data-category="sets">🎁 Наборы</button>
+        </nav>
+        <!-- Каталог товаров -->
+        <main class="catalog" id="catalog-container">
+            <!-- Карточки товаров создаются автоматически через JS -->
+        </main>
+        <!-- Нижняя плашка корзины -->
+        <div class="cart-bar hidden" id="cart-bar">
+            <div class="cart-info">
+                <span class="cart-count" id="cart-count">0 шт</span>
+                <span class="cart-total" id="cart-total">0 ₽</span>
+            </div>
+            <button class="btn-primary" id="btn-open-checkout">Перейти к оформлению ➔</button>
+        </div>
+        <!-- Модальное окно оформления заказа -->
+        <div class="modal hidden" id="checkout-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📦 Оформление заказа</h2>
+                    <button class="btn-close" id="btn-close-modal">✕</button>
+                </div>
+                
+                <form id="order-form">
+                    <div class="form-group">
+                        <label>👤 Ваше имя и фамилия:</label>
+                        <input type="text" id="cust-name" placeholder="Иван Иванов" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📱 Телефон для связи:</label>
+                        <input type="tel" id="cust-phone" placeholder="+7 (900) 000-00-00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🚚 Способ получения:</label>
+                        <select id="del-type">
+                            <option value="🚚 Доставка курьером">🚚 Доставка курьером по городу</option>
+                            <option value="🏃 Самовывоз">🏃 Самовывоз из фермы (ул. Зеленая, 15)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="address-group">
+                        <label>📍 Адрес доставки:</label>
+                        <input type="text" id="cust-address" placeholder="г. Москва, ул. Ленина, д. 10, кв. 5">
+                    </div>
+                    <div class="form-group">
+                        <label>📅 Желаемая дата и время получения:</label>
+                        <input type="text" id="del-date" placeholder="Завтра к 14:00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>💳 Способ оплаты:</label>
+                        <select id="pay-method">
+                            <option value="💵 При получении">💵 При получении (наличные/карта)</option>
+                            <option value="💳 Перевод по реквизитам">💳 Перевод по реквизитам (СБП/Карта)</option>
+                            <option value="⚡ Онлайн-оплата">⚡ Онлайн-оплата в боте</option>
+                        </select>
+                    </div>
+                    <div class="order-summary" id="modal-summary">
+                        <!-- Состав заказа -->
+                    </div>
+                    <button type="submit" class="btn-success" id="btn-submit-order">🎉 Подтвердить и отправить заказ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
