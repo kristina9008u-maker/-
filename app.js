@@ -1,5 +1,36 @@
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
+// Функция гарантированного получения данных пользователя Telegram
+function getTelegramUser() {
+    // 1. Из встроенного SDK Telegram
+    if (tg?.initDataUnsafe?.user) {
+        return tg.initDataUnsafe.user;
+    }
+    // 2. Из глобального окна
+    if (window.TelegramDataUnsafe?.user) {
+        return window.TelegramDataUnsafe.user;
+    }
+    // 3. Прямой парсинг из URL (на случай если SDK задерживается)
+    try {
+        const hash = window.location.hash || window.location.search;
+        if (hash) {
+            const hashClean = hash.replace(/^[#?]/, '');
+            const params = new URLSearchParams(hashClean);
+            const webAppData = params.get('tgWebAppData') || params.get('initData') || hashClean;
+            
+            if (webAppData) {
+                const innerParams = new URLSearchParams(webAppData);
+                const userStr = innerParams.get('user');
+                if (userStr) {
+                    return JSON.parse(decodeURIComponent(userStr));
+                }
+            }
+        }
+    } catch (e) {
+        console.error('URL parse error:', e);
+    }
+    return null;
+}
 // Глобальные функции открытия и закрытия полноэкранных форм
 window.openProfileView = function() {
     const el = document.getElementById('view-profile');
@@ -53,11 +84,17 @@ function initProfile() {
         let fullName = 'Эко Покупатель';
         let userHandle = '@telegram_user';
         let avatarSrc = '';
-        const u = tg?.initDataUnsafe?.user;
+        const u = getTelegramUser();
         if (u) {
-            fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Покупатель';
+            fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim();
+            if (!fullName) fullName = u.username || 'Покупатель';
             userHandle = u.username ? `@${u.username}` : (u.id ? `ID: ${u.id}` : '@telegram_user');
-            avatarSrc = u.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200&font-size=0.4`;
+            
+            if (u.photo_url) {
+                avatarSrc = u.photo_url;
+            } else {
+                avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200&font-size=0.4`;
+            }
         } else {
             avatarSrc = `https://ui-avatars.com/api/?name=User&background=2e7d32&color=fff&size=200`;
         }
