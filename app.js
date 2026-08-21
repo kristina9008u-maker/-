@@ -13,7 +13,6 @@ function safeDecode(str) {
 }
 // Прямой парсер хэша Telegram Mini App (#tgWebAppData=...)
 function getTelegramUser() {
-    // 1. Проверка Telegram.WebApp SDK
     if (tg?.initDataUnsafe?.user) {
         const u = tg.initDataUnsafe.user;
         if (u.first_name || u.username || u.id) return u;
@@ -21,13 +20,11 @@ function getTelegramUser() {
     if (window.TelegramDataUnsafe?.user) {
         return window.TelegramDataUnsafe.user;
     }
-    // 2. Расшифровка location.hash (#tgWebAppData=...)
     try {
         const hash = window.location.hash || window.location.search || '';
         if (hash) {
             const decoded = safeDecode(hash);
             
-            // Ищем JSON строку user={...}
             const match = decoded.match(/user=({.*?})/);
             if (match && match[1]) {
                 const parsed = JSON.parse(match[1]);
@@ -35,7 +32,6 @@ function getTelegramUser() {
                     return parsed;
                 }
             }
-            // Поиск параметрического user=
             const params = new URLSearchParams(decoded.replace(/^[#?]/, ''));
             const webAppData = params.get('tgWebAppData') || params.get('initData');
             if (webAppData) {
@@ -51,7 +47,6 @@ function getTelegramUser() {
     } catch (e) {
         console.error('Hash decode error:', e);
     }
-    // 3. Параметры URL ?username=...&name=...
     try {
         const searchParams = new URLSearchParams(window.location.search);
         const uUsername = searchParams.get('username');
@@ -65,7 +60,6 @@ function getTelegramUser() {
             };
         }
     } catch (e) {}
-    // 4. Локально сохраненное имя
     const savedName = localStorage.getItem('micro_user_name');
     if (savedName) {
         return { first_name: savedName };
@@ -114,6 +108,18 @@ const PRODUCTS = [
     { id: 8, category: "sets", name: "Подписка 'Месяц свежести'", price: 1800, weight: "4 недели (12 лотков)", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" }
 ];
 let cart = {};
+function setupDatePicker() {
+    const delDateInput = document.getElementById('del-date');
+    if (delDateInput && !delDateInput.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const minStr = `${yyyy}-${mm}-${dd}`;
+        delDateInput.min = minStr;
+        delDateInput.value = minStr;
+    }
+}
 // Инициализация Профиля из Telegram WebApp
 function initProfile() {
     try {
@@ -371,7 +377,16 @@ function initEvents() {
             const phone = document.getElementById('cust-phone').value.trim();
             const dType = document.getElementById('del-type').value;
             const address = dType.includes('Самовывоз') ? 'Самовывоз из фермы' : document.getElementById('cust-address').value.trim();
-            const delDate = document.getElementById('del-date').value.trim();
+            
+            const rawDate = document.getElementById('del-date').value;
+            const selectedTime = document.getElementById('del-time').value;
+            let dateFormatted = rawDate;
+            if (rawDate && rawDate.includes('-')) {
+                const [y, m, d] = rawDate.split('-');
+                const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+                dateFormatted = `${parseInt(d)} ${months[parseInt(m)-1]}`;
+            }
+            const delDateCombined = `${dateFormatted}, ${selectedTime}`;
             const payMethod = document.getElementById('pay-method').value;
             localStorage.setItem('micro_phone', phone);
             localStorage.setItem('micro_address', address);
@@ -396,7 +411,7 @@ function initEvents() {
             localStorage.setItem('micro_trays_count', currentTraysCount);
             const newOrderId = Math.floor(1000 + Math.random() * 9000);
             const now = new Date();
-            const dateStr = `${now.getDate()} ${['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][now.getMonth()]}, ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const dateStr = `${now.getDate()} ${['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'][now.getMonth()]}, ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
             const newOrder = {
                 id: newOrderId,
                 date: dateStr,
@@ -407,7 +422,7 @@ function initEvents() {
                 phone: phone,
                 delivery_type: dType,
                 address: address,
-                delivery_date: delDate,
+                delivery_date: delDateCombined,
                 payment_method: payMethod
             };
             const historyJSON = localStorage.getItem('micro_orders_history');
@@ -429,6 +444,7 @@ function initEvents() {
     }
 }
 function openCheckoutModal() {
+    setupDatePicker();
     let summaryHTML = '<strong>Состав заказа:</strong><br>';
     let total = 0;
     Object.keys(cart).forEach(id => {
@@ -459,6 +475,7 @@ function bootApp() {
     if (tg) {
         try { tg.ready(); tg.expand(); } catch(e){}
     }
+    setupDatePicker();
     initProfile();
     renderCatalog('all');
     initEvents();
