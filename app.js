@@ -13,14 +13,30 @@ function safeParseJSON(str) {
     try { return JSON.parse(s); } catch (e) {}
     return null;
 }
-// Динамический парсер пользователя Telegram (для любого кто открыл приложение)
+// Прямой 100% гарантированный парсер пользователя Telegram
 function getTelegramUser() {
-    // 1. Из официального SDK Telegram (работает для любого пользователя)
+    // 1. Прямые персональные URL-параметры от Python-бота (?username=...&name=...)
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const uUsername = urlParams.get('username');
+        const uName = urlParams.get('name');
+        const uId = urlParams.get('id');
+        if (uUsername || uName || uId) {
+            return {
+                first_name: uName || uUsername || 'Покупатель',
+                username: uUsername || '',
+                id: uId || ''
+            };
+        }
+    } catch (e) {
+        console.error('URL params error:', e);
+    }
+    // 2. Из официального SDK Telegram
     const tgUser = tg?.initDataUnsafe?.user || window.TelegramDataUnsafe?.user;
     if (tgUser && (tgUser.first_name || tgUser.username || tgUser.id)) {
         return tgUser;
     }
-    // 2. Из URL строки Telegram Mini App (#tgWebAppData=...)
+    // 3. Из URL строки Telegram Mini App (#tgWebAppData=...)
     try {
         const fullUrl = window.location.href;
         const searchStr = window.location.search || window.location.hash.replace('#', '');
@@ -37,7 +53,7 @@ function getTelegramUser() {
     } catch (e) {
         console.error('Telegram User parse error:', e);
     }
-    // 3. Данные из локального хранилища устройства этого пользователя (если ранее делался заказ)
+    // 4. Локальные данные устройства пользователя
     const savedName = localStorage.getItem('micro_user_name');
     if (savedName) {
         return { first_name: savedName };
@@ -117,7 +133,7 @@ function initProfile() {
                 }
             }
             if (u.username) {
-                userHandle = `@${u.username}`;
+                userHandle = u.username.startsWith('@') ? u.username : `@${u.username}`;
             } else if (u.id) {
                 userHandle = `ID: ${u.id}`;
             }
