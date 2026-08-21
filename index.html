@@ -50,12 +50,12 @@
             <button class="btn-primary" onclick="openCartView()">Оформить заказ ➔</button>
         </div>
     </div>
-    <!-- ПОЛНОЭКРАННАЯ ФОРМА 1: ЛИЧНЫЙ КАБИНЕТ (ВЫНЕСЕНА ОТДЕЛЬНО) -->
+    <!-- ПОЛНОЭКРАННАЯ ФОРМА 1: ЛИЧНЫЙ КАБИНЕТ -->
     <div id="view-profile" class="full-view-overlay" style="display: none;">
         <div class="full-view-header">
-            <button class="btn-back-header" onclick="closeProfileView()">← Назад к магазину</button>
-            <h2>👤 Личный кабинет</h2>
-            <div style="width: 60px;"></div>
+            <button class="btn-back-header" onclick="closeProfileView()">← Назад</button>
+            <h2 class="header-view-title">👤 Личный кабинет</h2>
+            <div class="header-spacer"></div>
         </div>
         <div class="full-view-body">
             <div class="profile-card">
@@ -92,12 +92,12 @@
             </div>
         </div>
     </div>
-    <!-- ПОЛНОЭКРАННАЯ ФОРМА 2: КОРЗИНА (ВЫНЕСЕНА ОТДЕЛЬНО) -->
+    <!-- ПОЛНОЭКРАННАЯ ФОРМА 2: КОРЗИНА -->
     <div id="view-cart" class="full-view-overlay" style="display: none;">
         <div class="full-view-header">
-            <button class="btn-back-header" onclick="closeCartView()">← Назад к товарам</button>
-            <h2>🛒 Ваша корзина</h2>
-            <div style="width: 60px;"></div>
+            <button class="btn-back-header" onclick="closeCartView()">← Назад</button>
+            <h2 class="header-view-title">🛒 Ваша корзина</h2>
+            <div class="header-spacer"></div>
         </div>
         <div class="full-view-body">
             <div id="cart-items-container" class="cart-items"></div>
