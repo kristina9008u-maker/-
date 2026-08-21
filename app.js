@@ -11,7 +11,7 @@ function safeDecode(str) {
     }
     return res;
 }
-// УНИВЕРСАЛЬНАЯ МАСКА ФОРМАТИРОВАНИЯ ТЕЛЕФОНА ДЛЯ ЛЮБОГО ВВЕДЕННОГО НОМЕРА
+// Универсальная маска форматирования телефона
 function formatPhoneNumber(value) {
     if (!value) return '';
     let digits = value.replace(/\D/g, '');
@@ -123,33 +123,34 @@ window.closeCartView = function() {
         el.style.display = 'none';
     }
 };
-// Список товаров микрозелени с указанием дней роста (growth_days)
+// Список товаров микрозелени с ВРЕМЕННЫМИ РАМКАМИ роста (growth_min и growth_max)
 const PRODUCTS = [
-    { id: 1, category: "live_trays", name: "Горошек Маш", price: 150, weight: "1 лоток (10x15 см)", growth_days: 7, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 2, category: "live_trays", name: "Подсолнечник", price: 180, weight: "1 лоток (10x15 см)", growth_days: 10, img: "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&q=80" },
-    { id: 3, category: "live_trays", name: "Редис Ред Коралл", price: 160, weight: "1 лоток (10x15 см)", growth_days: 6, img: "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=400&q=80" },
-    { id: 4, category: "live_trays", name: "Брокколи Рапини", price: 170, weight: "1 лоток (10x15 см)", growth_days: 8, img: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=400&q=80" },
-    { id: 5, category: "cut_greens", name: "Срез Горошка", price: 200, weight: "100 грамм", growth_days: 2, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 6, category: "cut_greens", name: "Микс-Срез 'Витаминный'", price: 250, weight: "100 грамм", growth_days: 2, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" },
-    { id: 7, category: "sets", name: "Набор 'Витаминный старт'", price: 500, weight: "3 лотка", growth_days: 7, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 8, category: "sets", name: "Подписка 'Месяц свежести'", price: 1800, weight: "4 недели (12 лотков)", growth_days: 7, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" }
+    { id: 1, category: "live_trays", name: "Горошек Маш", price: 150, weight: "1 лоток (10x15 см)", growth_min: 9, growth_max: 12, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
+    { id: 2, category: "live_trays", name: "Подсолнечник", price: 180, weight: "1 лоток (10x15 см)", growth_min: 9, growth_max: 12, img: "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&q=80" },
+    { id: 3, category: "live_trays", name: "Редис Ред Коралл", price: 160, weight: "1 лоток (10x15 см)", growth_min: 5, growth_max: 7, img: "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=400&q=80" },
+    { id: 4, category: "live_trays", name: "Брокколи Рапини", price: 170, weight: "1 лоток (10x15 см)", growth_min: 7, growth_max: 10, img: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=400&q=80" },
+    { id: 5, category: "cut_greens", name: "Срез Горошка", price: 200, weight: "100 грамм", growth_min: 1, growth_max: 2, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
+    { id: 6, category: "cut_greens", name: "Микс-Срез 'Витаминный'", price: 250, weight: "100 грамм", growth_min: 1, growth_max: 2, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" },
+    { id: 7, category: "sets", name: "Набор 'Витаминный старт'", price: 500, weight: "3 лотка", growth_min: 7, growth_max: 10, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
+    { id: 8, category: "sets", name: "Подписка 'Месяц свежести'", price: 1800, weight: "4 недели (12 лотков)", growth_min: 7, growth_max: 10, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" }
 ];
 let cart = {};
-// Динамический расчёт минимальной даты готовности заказа исходя из максимального срока роста товаров в корзине
+// Динамический расчёт МИНИМАЛЬНОЙ даты готовности заказа (по growth_min)
 function setupDatePicker() {
     const delDateInput = document.getElementById('del-date');
     const growthHintEl = document.getElementById('growth-hint');
     if (!delDateInput) return;
-    let maxGrowthDays = 2; // По умолчанию минимум 2 дня для готовой срезки
-    
+    let maxMinDays = 1; // Минимальный срок по умолчанию
     Object.keys(cart).forEach(id => {
         const p = PRODUCTS.find(prod => prod.id == id);
-        if (p && p.growth_days && p.growth_days > maxGrowthDays) {
-            maxGrowthDays = p.growth_days;
+        if (p && p.growth_min) {
+            if (p.growth_min > maxMinDays) {
+                maxMinDays = p.growth_min;
+            }
         }
     });
     const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + maxGrowthDays);
+    targetDate.setDate(targetDate.getDate() + maxMinDays);
     const yyyy = targetDate.getFullYear();
     const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
     const dd = String(targetDate.getDate()).padStart(2, '0');
@@ -161,7 +162,8 @@ function setupDatePicker() {
     if (growthHintEl) {
         const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
         const formattedMinDate = `${targetDate.getDate()} ${monthNames[targetDate.getMonth()]}`;
-        growthHintEl.innerHTML = `🌱 Время выращивания товаров в корзине: <strong>${maxGrowthDays} дн.</strong><br>Ближайшая возможная дата готовности: <strong>${formattedMinDate}</strong>`;
+        
+        growthHintEl.innerHTML = `🌱 Минимальный срок выращивания заказа: <strong>${maxMinDays} дн.</strong><br>Ближайшая возможная дата готовности: <strong>${formattedMinDate}</strong>`;
     }
 }
 // Инициализация Профиля из Telegram WebApp
@@ -259,9 +261,10 @@ function renderOrderHistory() {
             
             let statusClass = 'status-processing';
             const st = order.status || '';
-            if (st.includes('Выполняется') || st.includes('Принят')) statusClass = 'status-in-progress';
-            if (st.includes('доставку') || st.includes('пути')) statusClass = 'status-delivering';
-            if (st.includes('Выполнен') || st.includes('Получен')) statusClass = 'status-completed';
+            if (st.includes('Выращивается') || st.includes('Готовится')) statusClass = 'status-growing';
+            else if (st.includes('Выполняется') || st.includes('Принят')) statusClass = 'status-in-progress';
+            else if (st.includes('доставку') || st.includes('пути')) statusClass = 'status-delivering';
+            else if (st.includes('Выполнен') || st.includes('Получен')) statusClass = 'status-completed';
             let itemsText = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
             card.innerHTML = `
                 <div class="order-card-header">
@@ -292,11 +295,12 @@ function renderCatalog(category = 'all') {
             const card = document.createElement('div');
             card.className = 'product-card';
             
+            const rangeStr = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}–${p.growth_max} дн.`;
             card.innerHTML = `
                 <img class="product-img" src="${p.img}" alt="${p.name}">
                 <h3 class="product-title">${p.name}</h3>
                 <p class="product-weight">${p.weight}</p>
-                <p class="product-growth">⏱ Срок роста: ${p.growth_days} дн.</p>
+                <p class="product-growth">⏱ Срок роста: ${rangeStr}</p>
                 <p class="product-price">${p.price} ₽</p>
                 <div class="product-actions">
                     ${qty === 0 ? `
@@ -376,10 +380,11 @@ function renderCartPage(totalItems, totalPrice) {
         if (p) {
             const row = document.createElement('div');
             row.className = 'cart-item-row';
+            const rangeStr = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}–${p.growth_max} дн.`;
             row.innerHTML = `
                 <div class="cart-item-info">
                     <h4>${p.name}</h4>
-                    <p>${p.weight} • ⏱ ${p.growth_days} дн. • ${p.price} ₽</p>
+                    <p>${p.weight} • ⏱ ${rangeStr} • ${p.price} ₽</p>
                 </div>
                 <div class="qty-control" style="width: 100px;">
                     <button class="btn-qty" onclick="updateQty(${p.id}, ${cart[id] - 1})">-</button>
@@ -392,7 +397,6 @@ function renderCartPage(totalItems, totalPrice) {
     });
 }
 function initEvents() {
-    // ДИНАМИЧЕСКАЯ УНИВЕРСАЛЬНАЯ МАСКА ТЕЛЕФОНА ДЛЯ ЛЮБОГО ВВОДА
     const phoneInput = document.getElementById('cust-phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', (e) => {
@@ -504,7 +508,6 @@ function initEvents() {
 }
 function openCheckoutModal() {
     setupDatePicker();
-    // Автоподстановка ранее сохраненного номера телефона на этом устройстве
     const phoneInput = document.getElementById('cust-phone');
     const savedPhone = localStorage.getItem('micro_phone');
     if (phoneInput) {
