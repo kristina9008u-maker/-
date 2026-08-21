@@ -46,6 +46,7 @@ function getTelegramUser() {
 }
 // Глобальные функции открытия и закрытия полноэкранных форм
 window.openProfileView = function() {
+    initProfile();
     const el = document.getElementById('view-profile');
     if (el) {
         el.classList.remove('hidden');
@@ -413,6 +414,15 @@ function openCheckoutModal() {
     const modalEl = document.getElementById('checkout-modal');
     if (modalEl) modalEl.classList.remove('hidden');
 }
+let userLoaded = false;
+function pollTelegramUser() {
+    if (userLoaded) return;
+    const u = getTelegramUser();
+    if (u) {
+        userLoaded = true;
+        initProfile();
+    }
+}
 function bootApp() {
     if (tg) {
         try { tg.ready(); tg.expand(); } catch(e){}
@@ -420,8 +430,8 @@ function bootApp() {
     initProfile();
     renderCatalog('all');
     initEvents();
-    setTimeout(initProfile, 300);
-    setTimeout(initProfile, 1000);
+    const pollInterval = setInterval(pollTelegramUser, 150);
+    setTimeout(() => clearInterval(pollInterval), 5000);
 }
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootApp);
