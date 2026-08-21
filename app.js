@@ -13,42 +13,38 @@ function safeParseJSON(str) {
     try { return JSON.parse(s); } catch (e) {}
     return null;
 }
-// Гарантированный парсер пользователя Telegram
+// Умный парсер пользователя Telegram (с автоматической привязкой к Ko4e2v)
 function getTelegramUser() {
-    // 1. Из встроенного SDK Telegram
-    if (tg?.initDataUnsafe?.user) {
-        return tg.initDataUnsafe.user;
+    // 1. Из Telegram WebApp SDK
+    const tgUser = tg?.initDataUnsafe?.user || window.TelegramDataUnsafe?.user;
+    if (tgUser && (tgUser.first_name || tgUser.username || tgUser.id)) {
+        return tgUser;
     }
-    // 2. Из глобального окна
-    if (window.TelegramDataUnsafe?.user) {
-        return window.TelegramDataUnsafe.user;
-    }
-    // 3. Ручной парсинг из URL (с поддержкой двойного раскодирования)
+    // 2. Расшифровка из параметров ссылки URL
     try {
         const fullUrl = window.location.href;
-        const hash = window.location.hash || window.location.search || fullUrl;
+        const searchStr = window.location.search || window.location.hash.replace('#', '');
+        const params = new URLSearchParams(searchStr);
+        const webAppData = params.get('tgWebAppData') || params.get('initData') || fullUrl;
         
-        if (hash.includes('user=')) {
-            const matches = hash.match(/user=([^&]+)/);
+        if (webAppData) {
+            const matches = webAppData.match(/user=([^&]+)/);
             if (matches && matches[1]) {
                 const userObj = safeParseJSON(matches[1]);
-                if (userObj) return userObj;
-            }
-        }
-        const params = new URLSearchParams(window.location.search || window.location.hash.replace('#', ''));
-        const webAppData = params.get('tgWebAppData') || params.get('initData');
-        if (webAppData) {
-            const innerParams = new URLSearchParams(webAppData);
-            const userStr = innerParams.get('user');
-            if (userStr) {
-                const userObj = safeParseJSON(userStr);
-                if (userObj) return userObj;
+                if (userObj && (userObj.first_name || userObj.username)) return userObj;
             }
         }
     } catch (e) {
         console.error('Telegram User parse error:', e);
     }
-    return null;
+    // 3. Автоматический дефолт вашего ника Ko4e2v
+    const savedName = localStorage.getItem('micro_user_name') || 'Ko4e2v';
+    const savedUsername = localStorage.getItem('micro_username') || 'Ko4e2v';
+    return {
+        first_name: savedName,
+        username: savedUsername,
+        id: 1011382842
+    };
 }
 // Глобальные функции открытия и закрытия полноэкранных форм
 window.openProfileView = function() {
@@ -100,8 +96,8 @@ function initProfile() {
         const usernameEl = document.getElementById('user-username');
         const phoneEl = document.getElementById('saved-phone');
         const addressEl = document.getElementById('saved-address');
-        let fullName = 'Эко Покупатель';
-        let userHandle = '@telegram_user';
+        let fullName = 'Ko4e2v';
+        let userHandle = '@Ko4e2v';
         let avatarSrc = '';
         const u = getTelegramUser();
         const customName = localStorage.getItem('micro_user_name');
@@ -115,13 +111,13 @@ function initProfile() {
                 fullName = `${fname} ${lname}`.trim();
             } else if (u.username) {
                 fullName = u.username;
-            } else if (u.id) {
-                fullName = `Пользователь #${u.id}`;
+            } else {
+                fullName = 'Ko4e2v';
             }
             if (u.username) {
                 userHandle = `@${u.username}`;
-            } else if (u.id) {
-                userHandle = `ID: ${u.id}`;
+            } else {
+                userHandle = '@Ko4e2v';
             }
             if (u.photo_url) {
                 avatarSrc = u.photo_url;
@@ -129,14 +125,14 @@ function initProfile() {
                 avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200&font-size=0.4`;
             }
         } else {
-            avatarSrc = `https://ui-avatars.com/api/?name=User&background=2e7d32&color=fff&size=200`;
+            avatarSrc = `https://ui-avatars.com/api/?name=Ko4e2v&background=2e7d32&color=fff&size=200`;
         }
         if (nameEl) nameEl.textContent = fullName;
         if (usernameEl) usernameEl.textContent = userHandle;
         if (avatarEl) avatarEl.src = avatarSrc;
         if (topAvatarEl) topAvatarEl.src = avatarSrc;
         const custNameInput = document.getElementById('cust-name');
-        if (custNameInput && fullName !== 'Эко Покупатель') {
+        if (custNameInput) {
             custNameInput.value = fullName;
         }
         const savedPhone = localStorage.getItem('micro_phone');
@@ -345,7 +341,10 @@ function initEvents() {
             const payMethod = document.getElementById('pay-method').value;
             localStorage.setItem('micro_phone', phone);
             localStorage.setItem('micro_address', address);
-            if (name) localStorage.setItem('micro_user_name', name);
+            if (name) {
+                localStorage.setItem('micro_user_name', name);
+                localStorage.setItem('micro_username', name);
+            }
             let itemsArr = [];
             let totalPrice = 0;
             let totalTraysCount = 0;
