@@ -20,25 +20,74 @@
                 </div>
             </div>
         </header>
-        <!-- Навигация по категориям -->
-        <nav class="categories">
-            <button class="cat-btn active" data-category="all">Все товары</button>
-            <button class="cat-btn" data-category="live_trays">🌱 Живые лотки</button>
-            <button class="cat-btn" data-category="cut_greens">✂️ Срезка</button>
-            <button class="cat-btn" data-category="sets">🎁 Наборы</button>
-        </nav>
-        <!-- Каталог товаров -->
-        <main class="catalog" id="catalog-container">
-            <!-- Карточки товаров создаются автоматически через JS -->
-        </main>
-        <!-- Нижняя плашка корзины -->
-        <div class="cart-bar hidden" id="cart-bar">
-            <div class="cart-info">
-                <span class="cart-count" id="cart-count">0 шт</span>
-                <span class="cart-total" id="cart-total">0 ₽</span>
+
+        <!-- Вкладка 1: КАТАЛОГ -->
+        <section id="tab-catalog" class="tab-content active">
+            <!-- Навигация по категориям -->
+            <nav class="categories">
+                <button class="cat-btn active" data-category="all">Все товары</button>
+                <button class="cat-btn" data-category="live_trays">🌱 Живые лотки</button>
+                <button class="cat-btn" data-category="cut_greens">✂️ Срезка</button>
+                <button class="cat-btn" data-category="sets">🎁 Наборы</button>
+            </nav>
+
+            <!-- Сетка товаров -->
+            <main class="catalog" id="catalog-container">
+                <!-- Карточки товаров генерируются через JS -->
+            </main>
+        </section>
+
+        <!-- Вкладка 2: КОРЗИНА -->
+        <section id="tab-cart" class="tab-content hidden">
+            <div class="cart-section">
+                <h2 class="section-title">🛒 Ваша корзина</h2>
+                <div id="cart-items-container" class="cart-items">
+                    <!-- Содержимое корзины -->
+                </div>
+                <div id="cart-total-box" class="cart-total-box hidden">
+                    <div class="total-row">
+                        <span>Итого к оплате:</span>
+                        <strong id="cart-page-total">0 ₽</strong>
+                    </div>
+                    <button class="btn-success" id="btn-cart-checkout">📦 Перейти к оформлению</button>
+                </div>
             </div>
-            <button class="btn-primary" id="btn-open-checkout">Перейти к оформлению ➔</button>
-        </div>
+        </section>
+
+        <!-- Вкладка 3: ЛИЧНЫЙ КАБИНЕТ (ПРОФИЛЬ) -->
+        <section id="tab-profile" class="tab-content hidden">
+            <div class="profile-card">
+                <div class="avatar-container">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=2e7d32&color=fff&size=128" alt="Аватар" class="user-avatar">
+                </div>
+                <h2 id="user-full-name" class="user-name">Покупатель</h2>
+                <p id="user-username" class="user-handle">@telegram_user</p>
+                <span class="status-badge">🌱 Эко-Ценитель микрозелени</span>
+            </div>
+
+            <div class="profile-section">
+                <h3>📍 Сохраненные данные доставки</h3>
+                <div class="saved-info-box">
+                    <p>📱 <strong>Телефон:</strong> <span id="saved-phone">Не указан</span></p>
+                    <p>🏠 <strong>Адрес:</strong> <span id="saved-address">Не указан</span></p>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>📜 Ваша статистика покупок</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-num" id="stat-orders-count">0</span>
+                        <span class="stat-label">Заказов</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-num" id="stat-trays-count">0</span>
+                        <span class="stat-label">Лотков зелени</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Модальное окно оформления заказа -->
         <div class="modal hidden" id="checkout-modal">
             <div class="modal-content">
@@ -52,10 +101,12 @@
                         <label>👤 Ваше имя и фамилия:</label>
                         <input type="text" id="cust-name" placeholder="Иван Иванов" required>
                     </div>
+
                     <div class="form-group">
                         <label>📱 Телефон для связи:</label>
                         <input type="tel" id="cust-phone" placeholder="+7 (900) 000-00-00" required>
                     </div>
+
                     <div class="form-group">
                         <label>🚚 Способ получения:</label>
                         <select id="del-type">
@@ -63,14 +114,17 @@
                             <option value="🏃 Самовывоз">🏃 Самовывоз из фермы (ул. Зеленая, 15)</option>
                         </select>
                     </div>
+
                     <div class="form-group" id="address-group">
                         <label>📍 Адрес доставки:</label>
                         <input type="text" id="cust-address" placeholder="г. Москва, ул. Ленина, д. 10, кв. 5">
                     </div>
+
                     <div class="form-group">
                         <label>📅 Желаемая дата и время получения:</label>
                         <input type="text" id="del-date" placeholder="Завтра к 14:00" required>
                     </div>
+
                     <div class="form-group">
                         <label>💳 Способ оплаты:</label>
                         <select id="pay-method">
@@ -79,14 +133,32 @@
                             <option value="⚡ Онлайн-оплата">⚡ Онлайн-оплата в боте</option>
                         </select>
                     </div>
-                    <div class="order-summary" id="modal-summary">
-                        <!-- Состав заказа -->
-                    </div>
+
+                    <div class="order-summary" id="modal-summary"></div>
+
                     <button type="submit" class="btn-success" id="btn-submit-order">🎉 Подтвердить и отправить заказ</button>
                 </form>
             </div>
         </div>
+
+        <!-- Нижняя навигационная панель (Bottom Nav) -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-tab="tab-catalog">
+                <span class="nav-icon">🛍</span>
+                <span class="nav-label">Каталог</span>
+            </button>
+            <button class="nav-item" data-tab="tab-cart">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">Корзина</span>
+                <span class="nav-badge hidden" id="nav-cart-badge">0</span>
+            </button>
+            <button class="nav-item" data-tab="tab-profile">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Профиль</span>
+            </button>
+        </nav>
     </div>
+
     <script src="app.js"></script>
 </body>
 </html>
