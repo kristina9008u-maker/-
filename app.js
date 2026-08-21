@@ -1,6 +1,19 @@
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
-// Функция гарантированного получения данных пользователя Telegram
+// Декодирование двойных кавычек и двойного URL-кодирования Telegram
+function safeParseJSON(str) {
+    if (!str) return null;
+    let s = str;
+    for (let i = 0; i < 3; i++) {
+        if (typeof s === 'string' && (s.startsWith('{') || s.startsWith('['))) {
+            try { return JSON.parse(s); } catch (e) {}
+        }
+        try { s = decodeURIComponent(s); } catch (e) {}
+    }
+    try { return JSON.parse(s); } catch (e) {}
+    return null;
+}
+// Гарантированный парсер пользователя Telegram
 function getTelegramUser() {
     // 1. Из встроенного SDK Telegram
     if (tg?.initDataUnsafe?.user) {
@@ -10,24 +23,31 @@ function getTelegramUser() {
     if (window.TelegramDataUnsafe?.user) {
         return window.TelegramDataUnsafe.user;
     }
-    // 3. Прямой парсинг из URL (на случай если SDK задерживается)
+    // 3. Ручной парсинг из URL (с поддержкой двойного раскодирования)
     try {
-        const hash = window.location.hash || window.location.search;
-        if (hash) {
-            const hashClean = hash.replace(/^[#?]/, '');
-            const params = new URLSearchParams(hashClean);
-            const webAppData = params.get('tgWebAppData') || params.get('initData') || hashClean;
-            
-            if (webAppData) {
-                const innerParams = new URLSearchParams(webAppData);
-                const userStr = innerParams.get('user');
-                if (userStr) {
-                    return JSON.parse(decodeURIComponent(userStr));
-                }
+        const fullUrl = window.location.href;
+        const hash = window.location.hash || window.location.search || fullUrl;
+        
+        if (hash.includes('user=')) {
+            const matches = hash.match(/user=([^&]+)/);
+            if (matches && matches[1]) {
+                const userObj = safeParseJSON(matches[1]);
+                if (userObj) return userObj;
+            }
+        }
+        // Поиск tgWebAppData
+        const params = new URLSearchParams(window.location.search || window.location.hash.replace('#', ''));
+        const webAppData = params.get('tgWebAppData') || params.get('initData');
+        if (webAppData) {
+            const innerParams = new URLSearchParams(webAppData);
+            const userStr = innerParams.get('user');
+            if (userStr) {
+                const userObj = safeParseJSON(userStr);
+                if (userObj) return userObj;
             }
         }
     } catch (e) {
-        console.error('URL parse error:', e);
+        console.error('Telegram User parse error:', e);
     }
     return null;
 }
@@ -382,11 +402,13 @@ function openCheckoutModal() {
 }
 function bootApp() {
     if (tg) {
-        try { tg.ready(); } catch(e){}
+        try { tg.ready(); tg.expand(); } catch(e){}
     }
     initProfile();
     renderCatalog('all');
     initEvents();
+    setTimeout(initProfile, 300);
+    setTimeout(initProfile, 1000);
 }
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootApp);
