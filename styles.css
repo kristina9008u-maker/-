@@ -20,11 +20,12 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     padding-bottom: 80px;
+    overflow-x: hidden;
 }
 .hidden {
     display: none !important;
 }
-/* ВЕРХНЯЯ ШАПКА: Слева Профиль | Центр Логотип | Справа Корзина */
+/* ВЕРХНЯЯ ШАПКА КАТАЛОГА */
 .header {
     background: linear-gradient(135deg, #1b5e20, #4caf50);
     color: white;
@@ -40,24 +41,25 @@ body {
     z-index: 100;
 }
 .top-btn {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.22);
     border: none;
     color: white;
-    border-radius: 12px;
-    padding: 6px 10px;
+    border-radius: 20px;
+    padding: 5px 12px 5px 6px;
     display: flex;
     align-items: center;
     gap: 6px;
     cursor: pointer;
     position: relative;
     backdrop-filter: blur(4px);
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 .top-btn:active {
+    transform: scale(0.95);
     background: rgba(255, 255, 255, 0.35);
 }
 .top-btn .icon {
-    font-size: 20px;
+    font-size: 18px;
 }
 .top-cart-badge {
     position: absolute;
@@ -78,11 +80,10 @@ body {
 .logo-center {
     display: flex;
     align-items: center;
-    gap: 8px;
-    cursor: pointer;
+    gap: 6px;
 }
 .logo-icon {
-    font-size: 28px;
+    font-size: 26px;
 }
 .title {
     font-size: 16px;
@@ -94,15 +95,63 @@ body {
     opacity: 0.85;
 }
 .top-avatar {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid white;
+    border: 1.5px solid white;
 }
 .profile-label {
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
+}
+/* ОТДЕЛЬНЫЕ ПОЛНОЭКРАННЫЕ ОКНА (ФОРМЫ) */
+.full-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-color);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    animation: slideInRight 0.3s ease;
+}
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+.full-view-header {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32);
+    color: white;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 310;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+.full-view-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+}
+.btn-back-header {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.full-view-content {
+    padding: 16px;
+    flex: 1;
 }
 /* Категории */
 .categories {
@@ -131,14 +180,6 @@ body {
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-}
-/* Переключение вкладок */
-.tab-content {
-    animation: fadeIn 0.25s ease;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 /* Каталог */
 .catalog {
@@ -215,24 +256,7 @@ body {
     font-weight: 700;
     color: var(--primary-color);
 }
-/* Секции */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-}
-.btn-text-link {
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
-}
-.cart-section, .profile-section-container {
-    padding: 14px;
-}
+/* Корзина */
 .cart-items {
     display: flex;
     flex-direction: column;
@@ -275,41 +299,42 @@ body {
 /* Профиль */
 .profile-card {
     background-color: var(--card-bg);
-    padding: 18px;
+    padding: 20px;
     border-radius: var(--border-radius);
     text-align: center;
     box-shadow: var(--shadow);
     margin-bottom: 14px;
 }
 .avatar-container {
-    width: 76px;
-    height: 76px;
-    margin: 0 auto 10px;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 12px;
 }
 .user-avatar {
     width: 100%;
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--accent-color);
+    border: 3.5px solid var(--accent-color);
+    box-shadow: 0 4px 14px rgba(76, 175, 80, 0.35);
 }
 .user-name {
-    font-size: 17px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 800;
     margin-bottom: 2px;
 }
 .user-handle {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--hint-color);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 .status-badge {
     display: inline-block;
     background-color: #e8f5e9;
     color: var(--primary-color);
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
 }
 .profile-block {
@@ -324,7 +349,6 @@ body {
     margin-bottom: 10px;
     color: var(--hint-color);
 }
-/* Карточки историй заказов */
 .orders-history {
     display: flex;
     flex-direction: column;
@@ -434,7 +458,7 @@ body {
 /* Модальное окно */
 .modal {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); z-index: 200; display: flex; align-items: flex-end;
+    background-color: rgba(0, 0, 0, 0.5); z-index: 400; display: flex; align-items: flex-end;
 }
 .modal.hidden { display: none; }
 .modal-content {
