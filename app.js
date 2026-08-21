@@ -96,28 +96,45 @@ window.closeCartView = function() {
         el.style.display = 'none';
     }
 };
-// Список товаров микрозелени
+// Список товаров микрозелени с указанием дней роста (growth_days)
 const PRODUCTS = [
-    { id: 1, category: "live_trays", name: "Горошек Маш", price: 150, weight: "1 лоток (10x15 см)", img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 2, category: "live_trays", name: "Подсолнечник", price: 180, weight: "1 лоток (10x15 см)", img: "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&q=80" },
-    { id: 3, category: "live_trays", name: "Редис Ред Коралл", price: 160, weight: "1 лоток (10x15 см)", img: "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=400&q=80" },
-    { id: 4, category: "live_trays", name: "Брокколи Рапини", price: 170, weight: "1 лоток (10x15 см)", img: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=400&q=80" },
-    { id: 5, category: "cut_greens", name: "Срез Горошка", price: 200, weight: "100 грамм", img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 6, category: "cut_greens", name: "Микс-Срез 'Витаминный'", price: 250, weight: "100 грамм", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" },
-    { id: 7, category: "sets", name: "Набор 'Витаминный старт'", price: 500, weight: "3 лотка", img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 8, category: "sets", name: "Подписка 'Месяц свежести'", price: 1800, weight: "4 недели (12 лотков)", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" }
+    { id: 1, category: "live_trays", name: "Горошек Маш", price: 150, weight: "1 лоток (10x15 см)", growth_days: 7, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
+    { id: 2, category: "live_trays", name: "Подсолнечник", price: 180, weight: "1 лоток (10x15 см)", growth_days: 10, img: "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&q=80" },
+    { id: 3, category: "live_trays", name: "Редис Ред Коралл", price: 160, weight: "1 лоток (10x15 см)", growth_days: 6, img: "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=400&q=80" },
+    { id: 4, category: "live_trays", name: "Брокколи Рапини", price: 170, weight: "1 лоток (10x15 см)", growth_days: 8, img: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=400&q=80" },
+    { id: 5, category: "cut_greens", name: "Срез Горошка", price: 200, weight: "100 грамм", growth_days: 2, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
+    { id: 6, category: "cut_greens", name: "Микс-Срез 'Витаминный'", price: 250, weight: "100 грамм", growth_days: 2, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" },
+    { id: 7, category: "sets", name: "Набор 'Витаминный старт'", price: 500, weight: "3 лотка", growth_days: 7, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
+    { id: 8, category: "sets", name: "Подписка 'Месяц свежести'", price: 1800, weight: "4 недели (12 лотков)", growth_days: 7, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" }
 ];
 let cart = {};
+// Динамический расчёт минимальной даты готовности заказа исходя из максимального срока роста товаров в корзине
 function setupDatePicker() {
     const delDateInput = document.getElementById('del-date');
-    if (delDateInput && !delDateInput.value) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        const minStr = `${yyyy}-${mm}-${dd}`;
-        delDateInput.min = minStr;
+    const growthHintEl = document.getElementById('growth-hint');
+    if (!delDateInput) return;
+    let maxGrowthDays = 2; // По умолчанию минимум 2 дня для готовой срезки
+    
+    Object.keys(cart).forEach(id => {
+        const p = PRODUCTS.find(prod => prod.id == id);
+        if (p && p.growth_days && p.growth_days > maxGrowthDays) {
+            maxGrowthDays = p.growth_days;
+        }
+    });
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + maxGrowthDays);
+    const yyyy = targetDate.getFullYear();
+    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(targetDate.getDate()).padStart(2, '0');
+    const minStr = `${yyyy}-${mm}-${dd}`;
+    delDateInput.min = minStr;
+    if (!delDateInput.value || delDateInput.value < minStr) {
         delDateInput.value = minStr;
+    }
+    if (growthHintEl) {
+        const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+        const formattedMinDate = `${targetDate.getDate()} ${monthNames[targetDate.getMonth()]}`;
+        growthHintEl.innerHTML = `🌱 Время выращивания товаров в корзине: <strong>${maxGrowthDays} дн.</strong><br>Ближайшая возможная дата готовности: <strong>${formattedMinDate}</strong>`;
     }
 }
 // Инициализация Профиля из Telegram WebApp
@@ -254,6 +271,7 @@ function renderCatalog(category = 'all') {
                 <img class="product-img" src="${p.img}" alt="${p.name}">
                 <h3 class="product-title">${p.name}</h3>
                 <p class="product-weight">${p.weight}</p>
+                <p class="product-growth">⏱ Срок роста: ${p.growth_days} дн.</p>
                 <p class="product-price">${p.price} ₽</p>
                 <div class="product-actions">
                     ${qty === 0 ? `
@@ -336,7 +354,7 @@ function renderCartPage(totalItems, totalPrice) {
             row.innerHTML = `
                 <div class="cart-item-info">
                     <h4>${p.name}</h4>
-                    <p>${p.weight} • ${p.price} ₽</p>
+                    <p>${p.weight} • ⏱ ${p.growth_days} дн. • ${p.price} ₽</p>
                 </div>
                 <div class="qty-control" style="width: 100px;">
                     <button class="btn-qty" onclick="updateQty(${p.id}, ${cart[id] - 1})">-</button>
