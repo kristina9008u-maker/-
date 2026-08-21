@@ -10,82 +10,57 @@
 </head>
 <body>
     <div id="app">
-        <!-- ВЕРХНЯЯ ШАПКА: Слева Профиль | В центре Логотип | Справа Корзина -->
+        <!-- ВЕРХНЯЯ ШАПКА КАТАЛОГА -->
         <header class="header">
-            <!-- Влево: Кнопка Личного Кабинета (Профиль) -->
-            <button class="top-btn btn-profile" id="btn-top-profile">
+            <!-- Слева: Кнопка Профиля с прямой отработкой клика -->
+            <button class="top-btn btn-profile" id="btn-top-profile" onclick="openProfileView()">
                 <img id="top-avatar-img" src="https://ui-avatars.com/api/?name=User&background=2e7d32&color=fff" class="top-avatar" alt="Профиль">
                 <span class="profile-label">Профиль</span>
             </button>
-            <!-- В центре: Название и логотип -->
-            <div class="logo-center" id="btn-top-home">
+            <!-- По центру: Название -->
+            <div class="logo-center">
                 <span class="logo-icon">🌱</span>
                 <div>
                     <h1 class="title">Зелёный Урожай</h1>
                     <p class="subtitle">Свежая микрозелень</p>
                 </div>
             </div>
-            <!-- Справа: Кнопка Корзины -->
-            <button class="top-btn btn-cart" id="btn-top-cart">
+            <!-- Справа: Кнопка Корзины с прямой отработкой клика -->
+            <button class="top-btn btn-cart" id="btn-top-cart" onclick="openCartView()">
                 <span class="icon">🛒</span>
                 <span class="top-cart-badge hidden" id="top-cart-badge">0</span>
             </button>
         </header>
-        <!-- Вкладка 1: КАТАЛОГ (Главный экран) -->
-        <section id="tab-catalog" class="tab-content active">
-            <!-- Категории -->
+        <!-- КАТАЛОГ ТОВАРОВ -->
+        <section id="screen-catalog" class="screen active">
             <nav class="categories">
                 <button class="cat-btn active" data-category="all">Все товары</button>
                 <button class="cat-btn" data-category="live_trays">🌱 Живые лотки</button>
                 <button class="cat-btn" data-category="cut_greens">✂️ Срезка</button>
                 <button class="cat-btn" data-category="sets">🎁 Наборы</button>
             </nav>
-            <!-- Сетка товаров -->
             <main class="catalog" id="catalog-container"></main>
         </section>
-        <!-- Вкладка 2: КОРЗИНА -->
-        <section id="tab-cart" class="tab-content hidden">
-            <div class="cart-section">
-                <div class="section-header">
-                    <h2>🛒 Ваша корзина</h2>
-                    <button class="btn-text-link" id="btn-back-to-catalog">⬅️ Назад к товарам</button>
-                </div>
-                
-                <div id="cart-items-container" class="cart-items"></div>
-                
-                <div id="cart-total-box" class="cart-total-box hidden">
-                    <div class="total-row">
-                        <span>Итого к оплате:</span>
-                        <strong id="cart-page-total">0 ₽</strong>
-                    </div>
-                    <button class="btn-success" id="btn-cart-checkout">📦 Перейти к оформлению</button>
-                </div>
-            </div>
-        </section>
-        <!-- Вкладка 3: ЛИЧНЫЙ КАБИНЕТ (ПРОФИЛЬ И ИСТОРИЯ ЗАКАЗОВ) -->
-        <section id="tab-profile" class="tab-content hidden">
-            <div class="profile-section-container">
-                <div class="section-header">
-                    <h2>👤 Личный кабинет</h2>
-                    <button class="btn-text-link" id="btn-profile-back">⬅️ К каталогу</button>
-                </div>
-                <!-- Карточка профиля -->
+        <!-- ПОЛНОЭКРАННАЯ ФОРМА 1: ЛИЧНЫЙ КАБИНЕТ -->
+        <div id="view-profile" class="full-view hidden" style="display: none;">
+            <header class="full-view-header">
+                <button class="btn-back-header" id="btn-close-profile" onclick="closeProfileView()">← Назад к магазину</button>
+                <h2>👤 Личный кабинет</h2>
+                <div style="width: 80px;"></div>
+            </header>
+            <div class="full-view-content">
                 <div class="profile-card">
                     <div class="avatar-container">
-                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=2e7d32&color=fff&size=128" alt="Аватар" class="user-avatar">
+                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=2e7d32&color=fff&size=200" alt="Аватар" class="user-avatar">
                     </div>
-                    <h2 id="user-full-name" class="user-name">Покупатель</h2>
+                    <h2 id="user-full-name" class="user-name">Погрузка профиля...</h2>
                     <p id="user-username" class="user-handle">@telegram_user</p>
                     <span class="status-badge">🌱 Эко-Ценитель микрозелени</span>
                 </div>
-                <!-- Блок истории и статусов заказов -->
                 <div class="profile-block">
                     <h3>📜 История и статусы ваших заказов</h3>
-                    <div id="orders-history-container" class="orders-history">
-                        <!-- Динамическая история заказов через JS -->
-                    </div>
+                    <div id="orders-history-container" class="orders-history"></div>
                 </div>
-                <!-- Блок сохраненных данных -->
                 <div class="profile-block">
                     <h3>📍 Сохраненные данные доставки</h3>
                     <div class="saved-info-box">
@@ -93,7 +68,6 @@
                         <p>🏠 <strong>Адрес:</strong> <span id="saved-address">Не указан</span></p>
                     </div>
                 </div>
-                <!-- Статистика -->
                 <div class="profile-block">
                     <h3>📊 Статистика покупок</h3>
                     <div class="stats-grid">
@@ -108,8 +82,26 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <!-- Модальное окно оформления заказа -->
+        </div>
+        <!-- ПОЛНОЭКРАННАЯ ФОРМА 2: КОРЗИНА -->
+        <div id="view-cart" class="full-view hidden" style="display: none;">
+            <header class="full-view-header">
+                <button class="btn-back-header" id="btn-close-cart" onclick="closeCartView()">← Назад к товарам</button>
+                <h2>🛒 Ваша корзина</h2>
+                <div style="width: 80px;"></div>
+            </header>
+            <div class="full-view-content">
+                <div id="cart-items-container" class="cart-items"></div>
+                <div id="cart-total-box" class="cart-total-box hidden">
+                    <div class="total-row">
+                        <span>Итого к оплате:</span>
+                        <strong id="cart-page-total">0 ₽</strong>
+                    </div>
+                    <button class="btn-success" id="btn-cart-checkout">📦 Перейти к оформлению</button>
+                </div>
+            </div>
+        </div>
+        <!-- Модальное окно оформления -->
         <div class="modal hidden" id="checkout-modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -160,7 +152,7 @@
                 <span class="cart-count" id="cart-count">0 товаров</span>
                 <span class="cart-total" id="cart-total">0 ₽</span>
             </div>
-            <button class="btn-primary" id="btn-open-checkout">Перейти к оформлению ➔</button>
+            <button class="btn-primary" id="btn-open-checkout" onclick="openCartView()">Оформить заказ ➔</button>
         </div>
     </div>
     <script src="app.js"></script>
