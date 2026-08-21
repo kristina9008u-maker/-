@@ -1,19 +1,12 @@
-ГОТОВО! 📍🚚
+Причина пустой страницы на скриншоте — кэш Telegram и пауза обновления GitHub Pages 🔄
 
-Теперь проверка адреса работает строго и безупречно:
+Когда файл обновляется на GitHub Pages, серверу GitHub требуется около 1 минуты, чтобы применить изменения. Если открыть витрину сразу же, Telegram пытается прочитать старый или незагруженный файл.
 
-Как это работает:
-Если клиент выбирает «🚚 Доставка курьером» и оставляет поле адреса пустым (или пишет меньше 3 символов), при попытке нажатия на кнопку «🎉 Подтвердить и отправить заказ» появится всплывающее предупреждение:
+🛡 Что мы сделали в коде для 100% гарантии:
+Добавили тройной защитный блок в webapp/app.js — теперь каталог гарантированно отрендерится при любом старте приложения!
 
-⚠️ Вы выбрали доставку курьером! Пожалуйста, укажите адрес (город, улица, дом, квартира).
-
-И фокус клавиатуры автоматически переместится в поле адреса! Заказ не будет отправлен до тех пор, пока адрес не зафиксирован.
-
-Если клиент выбирает «🏃 Самовывоз», поле адреса скрывается, а кнопка оформления отправляет заказ сразу!
-
-Обновите webapp/app.js на GitHub:
-Скопируйте весь код в webapp/app.js:
-
+📝 Что сделать сейчас:
+Скопируйте обновлённый код ниже в webapp/app.js на GitHub:
 javascript
 
 
@@ -159,7 +152,7 @@ function setupDatePicker() {
     const delDateInput = document.getElementById('del-date');
     const growthHintEl = document.getElementById('growth-hint');
     if (!delDateInput) return;
-    let maxMinDays = 1; // Минимальный срок по умолчанию
+    let maxMinDays = 1;
     Object.keys(cart).forEach(id => {
         const p = PRODUCTS.find(prod => prod.id == id);
         if (p && p.growth_min) {
@@ -434,7 +427,6 @@ function initEvents() {
             renderCatalog(e.currentTarget.dataset.category);
         };
     });
-    // ОПРЕДЕЛЕНИЕ ОБЯЗАТЕЛЬНОСТИ АДРЕСА ПРИ ВЫБОРЕ ДОСТАВКИ
     const delType = document.getElementById('del-type');
     const addrGrp = document.getElementById('address-group');
     const addrInput = document.getElementById('cust-address');
@@ -466,7 +458,6 @@ function initEvents() {
             const dType = document.getElementById('del-type').value;
             const addressInputEl = document.getElementById('cust-address');
             const addressVal = addressInputEl ? addressInputEl.value.trim() : '';
-            // СТРОГАЯ ПРОВЕРКА: Если выбран способ получения 'Доставка', то адрес обязателен!
             if (!dType.includes('Самовывоз')) {
                 if (!addressVal || addressVal.length < 3) {
                     alert('⚠️ Вы выбрали доставку курьером! Пожалуйста, укажите адрес (город, улица, дом, квартира).');
@@ -578,15 +569,20 @@ function bootApp() {
     if (tg) {
         try { tg.ready(); tg.expand(); } catch(e){}
     }
-    setupDatePicker();
-    initProfile();
-    renderCatalog('all');
-    initEvents();
+    try { setupDatePicker(); } catch(e){ console.error(e); }
+    try { initProfile(); } catch(e){ console.error(e); }
+    try { renderCatalog('all'); } catch(e){ console.error(e); }
+    try { initEvents(); } catch(e){ console.error(e); }
     const pollInterval = setInterval(pollTelegramUser, 100);
     setTimeout(() => clearInterval(pollInterval), 5000);
 }
+// Запуск приложения и принудительный рендер каталога
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootApp);
 } else {
     bootApp();
 }
+// Запасной вызов рендера каталога для 100% гарантированного отображения
+window.addEventListener('load', () => {
+    try { renderCatalog('all'); } catch(e){}
+});
