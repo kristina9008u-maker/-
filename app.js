@@ -1,26 +1,62 @@
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
-// Декодирование двойного URL-кодирования Telegram
-function safeParseJSON(str) {
-    if (!str) return null;
-    let s = str;
+// Декодирование любых уровней URL-кодирования
+function safeDecode(str) {
+    if (!str) return '';
+    let res = str;
     for (let i = 0; i < 3; i++) {
-        if (typeof s === 'string' && (s.startsWith('{') || s.startsWith('['))) {
-            try { return JSON.parse(s); } catch (e) {}
+        if (res.includes('%')) {
+            try { res = decodeURIComponent(res); } catch (e) {}
         }
-        try { s = decodeURIComponent(s); } catch (e) {}
     }
-    try { return JSON.parse(s); } catch (e) {}
-    return null;
+    return res;
 }
-// Прямой 100% гарантированный парсер пользователя Telegram
+// Прямой парсер хэша Telegram Mini App (#tgWebAppData=...)
 function getTelegramUser() {
-    // 1. Прямые персональные URL-параметры от Python-бота (?username=...&name=...)
+    // 1. Проверка Telegram.WebApp SDK
+    if (tg?.initDataUnsafe?.user) {
+        const u = tg.initDataUnsafe.user;
+        if (u.first_name || u.username || u.id) return u;
+    }
+    if (window.TelegramDataUnsafe?.user) {
+        return window.TelegramDataUnsafe.user;
+    }
+    // 2. Расшифровка location.hash (#tgWebAppData=...)
     try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const uUsername = urlParams.get('username');
-        const uName = urlParams.get('name');
-        const uId = urlParams.get('id');
+        const hash = window.location.hash || window.location.search || '';
+        if (hash) {
+            const decoded = safeDecode(hash);
+            
+            // Ищем JSON строку user={...}
+            const match = decoded.match(/user=({.*?})/);
+            if (match && match[1]) {
+                const parsed = JSON.parse(match[1]);
+                if (parsed && (parsed.first_name || parsed.username || parsed.id)) {
+                    return parsed;
+                }
+            }
+            // Поиск параметрического user=
+            const params = new URLSearchParams(decoded.replace(/^[#?]/, ''));
+            const webAppData = params.get('tgWebAppData') || params.get('initData');
+            if (webAppData) {
+                const innerDecoded = safeDecode(webAppData);
+                const innerParams = new URLSearchParams(innerDecoded);
+                const userStr = innerParams.get('user');
+                if (userStr) {
+                    const parsed = JSON.parse(safeDecode(userStr));
+                    if (parsed) return parsed;
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Hash decode error:', e);
+    }
+    // 3. Параметры URL ?username=...&name=...
+    try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const uUsername = searchParams.get('username');
+        const uName = searchParams.get('name');
+        const uId = searchParams.get('id');
         if (uUsername || uName || uId) {
             return {
                 first_name: uName || uUsername || 'Покупатель',
@@ -28,32 +64,8 @@ function getTelegramUser() {
                 id: uId || ''
             };
         }
-    } catch (e) {
-        console.error('URL params error:', e);
-    }
-    // 2. Из официального SDK Telegram
-    const tgUser = tg?.initDataUnsafe?.user || window.TelegramDataUnsafe?.user;
-    if (tgUser && (tgUser.first_name || tgUser.username || tgUser.id)) {
-        return tgUser;
-    }
-    // 3. Из URL строки Telegram Mini App (#tgWebAppData=...)
-    try {
-        const fullUrl = window.location.href;
-        const searchStr = window.location.search || window.location.hash.replace('#', '');
-        const params = new URLSearchParams(searchStr);
-        const webAppData = params.get('tgWebAppData') || params.get('initData') || fullUrl;
-        
-        if (webAppData) {
-            const matches = webAppData.match(/user=([^&]+)/);
-            if (matches && matches[1]) {
-                const userObj = safeParseJSON(matches[1]);
-                if (userObj && (userObj.first_name || userObj.username || userObj.id)) return userObj;
-            }
-        }
-    } catch (e) {
-        console.error('Telegram User parse error:', e);
-    }
-    // 4. Локальные данные устройства пользователя
+    } catch (e) {}
+    // 4. Локально сохраненное имя
     const savedName = localStorage.getItem('micro_user_name');
     if (savedName) {
         return { first_name: savedName };
@@ -111,8 +123,8 @@ function initProfile() {
         const usernameEl = document.getElementById('user-username');
         const phoneEl = document.getElementById('saved-phone');
         const addressEl = document.getElementById('saved-address');
-        let fullName = 'Эко Покупатель';
-        let userHandle = '@telegram_user';
+        let fullName = '';
+        let userHandle = '';
         let avatarSrc = '';
         const u = getTelegramUser();
         const customName = localStorage.getItem('micro_user_name');
@@ -136,13 +148,17 @@ function initProfile() {
                 userHandle = u.username.startsWith('@') ? u.username : `@${u.username}`;
             } else if (u.id) {
                 userHandle = `ID: ${u.id}`;
+            } else {
+                userHandle = '@telegram_user';
             }
             if (u.photo_url) {
                 avatarSrc = u.photo_url;
             } else {
-                avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200&font-size=0.4`;
+                avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'User')}&background=2e7d32&color=fff&size=200&font-size=0.4`;
             }
         } else {
+            fullName = fullName || 'Покупатель';
+            userHandle = '@telegram_user';
             avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200`;
         }
         if (nameEl) nameEl.textContent = fullName;
@@ -150,7 +166,7 @@ function initProfile() {
         if (avatarEl) avatarEl.src = avatarSrc;
         if (topAvatarEl) topAvatarEl.src = avatarSrc;
         const custNameInput = document.getElementById('cust-name');
-        if (custNameInput && fullName !== 'Эко Покупатель') {
+        if (custNameInput && fullName !== 'Покупатель') {
             custNameInput.value = fullName;
         }
         const savedPhone = localStorage.getItem('micro_phone');
@@ -446,7 +462,7 @@ function bootApp() {
     initProfile();
     renderCatalog('all');
     initEvents();
-    const pollInterval = setInterval(pollTelegramUser, 150);
+    const pollInterval = setInterval(pollTelegramUser, 100);
     setTimeout(() => clearInterval(pollInterval), 5000);
 }
 if (document.readyState === 'loading') {
