@@ -1,3 +1,18 @@
+ГОТОВО!📱✨
+
+Теперь поле ввода телефона работает по строгому красивому шаблону:
+
+Как это работает:
+Как только клиент начинает вводить номер (например, пишет 89659011261 или 7965...), поле на лету на лету переводит текст в формат: 👉 +7 (965) 901-12-61
+Автоматически расставляются скобки () и дефисы -.
+Нельзя ввести больше нужного количества цифр.
+Если номер не допечатан до конца, система попросит ввести корректный полный номер!
+Обновите webapp/app.js на GitHub:
+Скопируйте весь код в webapp/app.js:
+
+javascript
+
+
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
 // Декодирование любых уровней URL-кодирования
@@ -8,6 +23,32 @@ function safeDecode(str) {
         if (res.includes('%')) {
             try { res = decodeURIComponent(res); } catch (e) {}
         }
+    }
+    return res;
+}
+// Форматирование телефона по строгому шаблону: +7 (965) 901-12-61
+function formatPhoneNumber(value) {
+    if (!value) return '';
+    let digits = value.replace(/\D/g, '');
+    
+    if (digits.startsWith('7') || digits.startsWith('8')) {
+        digits = digits.substring(1);
+    }
+    
+    digits = digits.substring(0, 10);
+    
+    let res = '+7';
+    if (digits.length > 0) {
+        res += ' (' + digits.substring(0, 3);
+    }
+    if (digits.length >= 3) {
+        res += ') ' + digits.substring(3, 6);
+    }
+    if (digits.length >= 6) {
+        res += '-' + digits.substring(6, 8);
+    }
+    if (digits.length >= 8) {
+        res += '-' + digits.substring(8, 10);
     }
     return res;
 }
@@ -367,6 +408,18 @@ function renderCartPage(totalItems, totalPrice) {
     });
 }
 function initEvents() {
+    // МАСКА ВВОДА НОМЕРА ТЕЛЕФОНА +7 (965) 901-12-61
+    const phoneInput = document.getElementById('cust-phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', (e) => {
+            phoneInput.value = formatPhoneNumber(e.target.value);
+        });
+        phoneInput.addEventListener('focus', () => {
+            if (!phoneInput.value) {
+                phoneInput.value = '+7 (';
+            }
+        });
+    }
     document.querySelectorAll('.cat-btn').forEach(btn => {
         btn.onclick = (e) => {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -393,6 +446,10 @@ function initEvents() {
             e.preventDefault();
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
+            if (phone.length < 18) {
+                alert('Пожалуйста, введите полный номер телефона в формате: +7 (965) 901-12-61');
+                return;
+            }
             const dType = document.getElementById('del-type').value;
             const address = dType.includes('Самовывоз') ? 'Самовывоз из фермы' : document.getElementById('cust-address').value.trim();
             
