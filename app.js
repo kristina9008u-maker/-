@@ -215,21 +215,27 @@ function renderCartPage(totalItems, totalPrice) {
 }
 function openFullView(viewId) {
     const el = document.getElementById(viewId);
-    if (el) el.classList.remove('hidden');
+    if (el) {
+        el.classList.remove('hidden');
+        el.style.display = 'flex';
+    }
 }
 function closeFullView(viewId) {
     const el = document.getElementById(viewId);
-    if (el) el.classList.add('hidden');
+    if (el) {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+    }
 }
 function initEvents() {
     const btnProf = document.getElementById('btn-top-profile');
-    if (btnProf) btnProf.onclick = () => openFullView('view-profile');
+    if (btnProf) btnProf.onclick = (e) => { e.preventDefault(); openFullView('view-profile'); };
     const btnCloseProf = document.getElementById('btn-close-profile');
-    if (btnCloseProf) btnCloseProf.onclick = () => closeFullView('view-profile');
+    if (btnCloseProf) btnCloseProf.onclick = (e) => { e.preventDefault(); closeFullView('view-profile'); };
     const btnCart = document.getElementById('btn-top-cart');
-    if (btnCart) btnCart.onclick = () => openFullView('view-cart');
+    if (btnCart) btnCart.onclick = (e) => { e.preventDefault(); openFullView('view-cart'); };
     const btnCloseCart = document.getElementById('btn-close-cart');
-    if (btnCloseCart) btnCloseCart.onclick = () => closeFullView('view-cart');
+    if (btnCloseCart) btnCloseCart.onclick = (e) => { e.preventDefault(); closeFullView('view-cart'); };
     document.querySelectorAll('.cat-btn').forEach(btn => {
         btn.onclick = (e) => {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -332,12 +338,17 @@ function openCheckoutModal() {
     const modalEl = document.getElementById('checkout-modal');
     if (modalEl) modalEl.classList.remove('hidden');
 }
-// Запуск при готовности страницы
-document.addEventListener('DOMContentLoaded', () => {
+function bootApp() {
     if (tg) {
         try { tg.ready(); } catch(e){}
     }
     initProfile();
     renderCatalog('all');
     initEvents();
-});
+}
+// Надежный мгновенный запуск
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+    bootApp();
+}
