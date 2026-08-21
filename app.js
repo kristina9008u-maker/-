@@ -35,7 +35,6 @@ function getTelegramUser() {
                 if (userObj) return userObj;
             }
         }
-        // Поиск tgWebAppData
         const params = new URLSearchParams(window.location.search || window.location.hash.replace('#', ''));
         const webAppData = params.get('tgWebAppData') || params.get('initData');
         if (webAppData) {
@@ -105,11 +104,25 @@ function initProfile() {
         let userHandle = '@telegram_user';
         let avatarSrc = '';
         const u = getTelegramUser();
-        if (u) {
-            fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim();
-            if (!fullName) fullName = u.username || 'Покупатель';
-            userHandle = u.username ? `@${u.username}` : (u.id ? `ID: ${u.id}` : '@telegram_user');
+        const customName = localStorage.getItem('micro_user_name');
+        if (customName) {
+            fullName = customName;
+        } else if (u) {
+            const fname = (u.first_name || '').trim();
+            const lname = (u.last_name || '').trim();
             
+            if (fname || lname) {
+                fullName = `${fname} ${lname}`.trim();
+            } else if (u.username) {
+                fullName = u.username;
+            } else if (u.id) {
+                fullName = `Пользователь #${u.id}`;
+            }
+            if (u.username) {
+                userHandle = `@${u.username}`;
+            } else if (u.id) {
+                userHandle = `ID: ${u.id}`;
+            }
             if (u.photo_url) {
                 avatarSrc = u.photo_url;
             } else {
@@ -332,6 +345,7 @@ function initEvents() {
             const payMethod = document.getElementById('pay-method').value;
             localStorage.setItem('micro_phone', phone);
             localStorage.setItem('micro_address', address);
+            if (name) localStorage.setItem('micro_user_name', name);
             let itemsArr = [];
             let totalPrice = 0;
             let totalTraysCount = 0;
