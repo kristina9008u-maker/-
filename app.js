@@ -1,5 +1,34 @@
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
+// Глобальные функции открытия и закрытия полноэкранных форм
+window.openProfileView = function() {
+    const el = document.getElementById('view-profile');
+    if (el) {
+        el.classList.remove('hidden');
+        el.style.display = 'flex';
+    }
+};
+window.closeProfileView = function() {
+    const el = document.getElementById('view-profile');
+    if (el) {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+    }
+};
+window.openCartView = function() {
+    const el = document.getElementById('view-cart');
+    if (el) {
+        el.classList.remove('hidden');
+        el.style.display = 'flex';
+    }
+};
+window.closeCartView = function() {
+    const el = document.getElementById('view-cart');
+    if (el) {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+    }
+};
 // Список товаров микрозелени
 const PRODUCTS = [
     { id: 1, category: "live_trays", name: "Горошек Маш", price: 150, weight: "1 лоток (10x15 см)", img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
@@ -213,29 +242,7 @@ function renderCartPage(totalItems, totalPrice) {
         }
     });
 }
-function openFullView(viewId) {
-    const el = document.getElementById(viewId);
-    if (el) {
-        el.classList.remove('hidden');
-        el.style.display = 'flex';
-    }
-}
-function closeFullView(viewId) {
-    const el = document.getElementById(viewId);
-    if (el) {
-        el.classList.add('hidden');
-        el.style.display = 'none';
-    }
-}
 function initEvents() {
-    const btnProf = document.getElementById('btn-top-profile');
-    if (btnProf) btnProf.onclick = (e) => { e.preventDefault(); openFullView('view-profile'); };
-    const btnCloseProf = document.getElementById('btn-close-profile');
-    if (btnCloseProf) btnCloseProf.onclick = (e) => { e.preventDefault(); closeFullView('view-profile'); };
-    const btnCart = document.getElementById('btn-top-cart');
-    if (btnCart) btnCart.onclick = (e) => { e.preventDefault(); openFullView('view-cart'); };
-    const btnCloseCart = document.getElementById('btn-close-cart');
-    if (btnCloseCart) btnCloseCart.onclick = (e) => { e.preventDefault(); closeFullView('view-cart'); };
     document.querySelectorAll('.cat-btn').forEach(btn => {
         btn.onclick = (e) => {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -252,8 +259,6 @@ function initEvents() {
     }
     const btnCheckout1 = document.getElementById('btn-cart-checkout');
     if (btnCheckout1) btnCheckout1.onclick = openCheckoutModal;
-    const btnCheckout2 = document.getElementById('btn-open-checkout');
-    if (btnCheckout2) btnCheckout2.onclick = openCheckoutModal;
     const btnCloseModal = document.getElementById('btn-close-modal');
     if (btnCloseModal) btnCloseModal.onclick = () => {
         document.getElementById('checkout-modal').classList.add('hidden');
@@ -309,14 +314,14 @@ function initEvents() {
             cart = {};
             updateCartUI();
             document.getElementById('checkout-modal').classList.add('hidden');
-            closeFullView('view-cart');
+            window.closeCartView();
             if (tg && tg.sendData) {
                 tg.sendData(JSON.stringify(newOrder));
             } else {
                 alert(`Заказ #${newOrderId} оформлен! Статус: ⚙️ Выполняется`);
             }
             initProfile();
-            openFullView('view-profile');
+            window.openProfileView();
         };
     }
 }
@@ -346,7 +351,6 @@ function bootApp() {
     renderCatalog('all');
     initEvents();
 }
-// Надежный мгновенный запуск
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootApp);
 } else {
