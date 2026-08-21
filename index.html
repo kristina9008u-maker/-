@@ -138,23 +138,15 @@
                     <label>📍 Адрес доставки:</label>
                     <input type="text" id="cust-address" placeholder="г. Москва, ул. Ленина, д. 10, кв. 5">
                 </div>
+                <!-- ИНТЕРАКТИВНЫЙ ВЫБОР ДАТЫ (КАЛЕНДАРЬ) -->
                 <div class="form-group">
-                    <label>📅 Желаемая дата и время получения:</label>
-                    <input type="text" id="del-date" placeholder="Завтра к 14:00" required>
+                    <label>📅 Выберите дату получения:</label>
+                    <input type="date" id="del-date" required>
                 </div>
+                <!-- ИНТЕРАКТИВНЫЙ ВЫБОР ВРЕМЕНИ -->
                 <div class="form-group">
-                    <label>💳 Способ оплаты:</label>
-                    <select id="pay-method">
-                        <option value="💵 При получении">💵 При получении (наличные/карта)</option>
-                        <option value="💳 Перевод по реквизитам">💳 Перевод по реквизитам (СБП/Карта)</option>
-                        <option value="⚡ Онлайн-оплата">⚡ Онлайн-оплата в боте</option>
-                    </select>
-                </div>
-                <div class="order-summary" id="modal-summary"></div>
-                <button type="submit" class="btn-success" id="btn-submit-order">🎉 Подтвердить и отправить заказ</button>
-            </form>
-        </div>
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
+                    <label>⏰ Удобный интервал времени:</label>
+                    <select id="del-time" required>
+                        <option value="🌅 Утро (09:00 - 12:00)">🌅 Утро (09:00 - 12:00)</option>
+                        <option value="☀️ День (12:00 - 15:00)" selected>☀️ День (12:00 - 15:00)</option>
+                        <option value="
