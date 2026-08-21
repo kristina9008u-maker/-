@@ -1,3 +1,22 @@
+ГОТОВО! 📍🚚
+
+Теперь проверка адреса работает строго и безупречно:
+
+Как это работает:
+Если клиент выбирает «🚚 Доставка курьером» и оставляет поле адреса пустым (или пишет меньше 3 символов), при попытке нажатия на кнопку «🎉 Подтвердить и отправить заказ» появится всплывающее предупреждение:
+
+⚠️ Вы выбрали доставку курьером! Пожалуйста, укажите адрес (город, улица, дом, квартира).
+
+И фокус клавиатуры автоматически переместится в поле адреса! Заказ не будет отправлен до тех пор, пока адрес не зафиксирован.
+
+Если клиент выбирает «🏃 Самовывоз», поле адреса скрывается, а кнопка оформления отправляет заказ сразу!
+
+Обновите webapp/app.js на GitHub:
+Скопируйте весь код в webapp/app.js:
+
+javascript
+
+
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
 // Декодирование любых уровней URL-кодирования
@@ -415,12 +434,18 @@ function initEvents() {
             renderCatalog(e.currentTarget.dataset.category);
         };
     });
+    // ОПРЕДЕЛЕНИЕ ОБЯЗАТЕЛЬНОСТИ АДРЕСА ПРИ ВЫБОРЕ ДОСТАВКИ
     const delType = document.getElementById('del-type');
+    const addrGrp = document.getElementById('address-group');
+    const addrInput = document.getElementById('cust-address');
     if (delType) {
-        delType.onchange = (e) => {
-            const addrGrp = document.getElementById('address-group');
-            if (addrGrp) addrGrp.style.display = e.target.value.includes('Самовывоз') ? 'none' : 'block';
+        const checkAddressRequirement = () => {
+            const isDelivery = delType.value.includes('Доставка') || delType.value.includes('курьер');
+            if (addrGrp) addrGrp.style.display = isDelivery ? 'block' : 'none';
+            if (addrInput) addrInput.required = isDelivery;
         };
+        delType.onchange = checkAddressRequirement;
+        checkAddressRequirement();
     }
     const btnCheckout1 = document.getElementById('btn-cart-checkout');
     if (btnCheckout1) btnCheckout1.onclick = openCheckoutModal;
@@ -439,7 +464,17 @@ function initEvents() {
                 return;
             }
             const dType = document.getElementById('del-type').value;
-            const address = dType.includes('Самовывоз') ? 'Самовывоз из фермы' : document.getElementById('cust-address').value.trim();
+            const addressInputEl = document.getElementById('cust-address');
+            const addressVal = addressInputEl ? addressInputEl.value.trim() : '';
+            // СТРОГАЯ ПРОВЕРКА: Если выбран способ получения 'Доставка', то адрес обязателен!
+            if (!dType.includes('Самовывоз')) {
+                if (!addressVal || addressVal.length < 3) {
+                    alert('⚠️ Вы выбрали доставку курьером! Пожалуйста, укажите адрес (город, улица, дом, квартира).');
+                    if (addressInputEl) addressInputEl.focus();
+                    return;
+                }
+            }
+            const address = dType.includes('Самовывоз') ? 'Самовывоз из фермы' : addressVal;
             
             const rawDate = document.getElementById('del-date').value;
             const selectedTime = document.getElementById('del-time').value;
