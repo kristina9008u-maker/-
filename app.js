@@ -1,18 +1,3 @@
-ГОТОВО!📱✨
-
-Теперь поле ввода телефона работает по строгому красивому шаблону:
-
-Как это работает:
-Как только клиент начинает вводить номер (например, пишет 89659011261 или 7965...), поле на лету на лету переводит текст в формат: 👉 +7 (965) 901-12-61
-Автоматически расставляются скобки () и дефисы -.
-Нельзя ввести больше нужного количества цифр.
-Если номер не допечатан до конца, система попросит ввести корректный полный номер!
-Обновите webapp/app.js на GitHub:
-Скопируйте весь код в webapp/app.js:
-
-javascript
-
-
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
 // Декодирование любых уровней URL-кодирования
@@ -26,7 +11,7 @@ function safeDecode(str) {
     }
     return res;
 }
-// Форматирование телефона по строгому шаблону: +7 (965) 901-12-61
+// УНИВЕРСАЛЬНАЯ МАСКА ФОРМАТИРОВАНИЯ ТЕЛЕФОНА ДЛЯ ЛЮБОГО ВВЕДЕННОГО НОМЕРА
 function formatPhoneNumber(value) {
     if (!value) return '';
     let digits = value.replace(/\D/g, '');
@@ -36,10 +21,11 @@ function formatPhoneNumber(value) {
     }
     
     digits = digits.substring(0, 10);
+    if (digits.length === 0) return '';
     
-    let res = '+7';
+    let res = '+7 (';
     if (digits.length > 0) {
-        res += ' (' + digits.substring(0, 3);
+        res += digits.substring(0, 3);
     }
     if (digits.length >= 3) {
         res += ') ' + digits.substring(3, 6);
@@ -239,8 +225,6 @@ function initProfile() {
         const traysCount = localStorage.getItem('micro_trays_count') || '0';
         if (savedPhone && phoneEl) {
             phoneEl.textContent = savedPhone;
-            const input = document.getElementById('cust-phone');
-            if (input) input.value = savedPhone;
         }
         if (savedAddress && addressEl) {
             addressEl.textContent = savedAddress;
@@ -408,7 +392,7 @@ function renderCartPage(totalItems, totalPrice) {
     });
 }
 function initEvents() {
-    // МАСКА ВВОДА НОМЕРА ТЕЛЕФОНА +7 (965) 901-12-61
+    // ДИНАМИЧЕСКАЯ УНИВЕРСАЛЬНАЯ МАСКА ТЕЛЕФОНА ДЛЯ ЛЮБОГО ВВОДА
     const phoneInput = document.getElementById('cust-phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', (e) => {
@@ -520,6 +504,12 @@ function initEvents() {
 }
 function openCheckoutModal() {
     setupDatePicker();
+    // Автоподстановка ранее сохраненного номера телефона на этом устройстве
+    const phoneInput = document.getElementById('cust-phone');
+    const savedPhone = localStorage.getItem('micro_phone');
+    if (phoneInput) {
+        phoneInput.value = savedPhone ? formatPhoneNumber(savedPhone) : '';
+    }
     let summaryHTML = '<strong>Состав заказа:</strong><br>';
     let total = 0;
     Object.keys(cart).forEach(id => {
