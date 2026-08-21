@@ -25,49 +25,81 @@ body {
 .hidden {
     display: none !important;
 }
-/* ВЕРХНЯЯ ШАПКА КАТАЛОГА */
+/* ВЕРХНЯЯ ШАПКА: НАЗВАНИЕ НАД ВСЕМИ КНОПКАМИ */
 .header {
     background: linear-gradient(135deg, #1b5e20, #4caf50);
     color: white;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    padding: 14px 16px;
     border-bottom-left-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+    box-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
+    text-align: center;
     position: sticky;
     top: 0;
     z-index: 100;
 }
-.top-btn {
+.store-title-box {
+    margin-bottom: 12px;
+}
+.store-icon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 2px;
+}
+.store-name {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+}
+.store-subtitle {
+    font-size: 11px;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+.header-buttons-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.top-nav-btn {
+    flex: 1;
     background: rgba(255, 255, 255, 0.22);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: white;
-    border-radius: 20px;
-    padding: 5px 12px 5px 6px;
+    border-radius: 12px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
     position: relative;
     backdrop-filter: blur(4px);
     transition: all 0.2s;
 }
-.top-btn:active {
-    transform: scale(0.95);
+.top-nav-btn:active {
+    transform: scale(0.96);
     background: rgba(255, 255, 255, 0.35);
 }
-.top-btn .icon {
-    font-size: 18px;
+.top-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.cart-icon-symbol {
+    font-size: 16px;
 }
 .top-cart-badge {
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -5px;
+    right: -5px;
     background-color: #e53935;
     color: white;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
     width: 18px;
     height: 18px;
@@ -77,62 +109,31 @@ body {
     justify-content: center;
     border: 2px solid #1b5e20;
 }
-.logo-center {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.logo-icon {
-    font-size: 26px;
-}
-.title {
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.1;
-}
-.subtitle {
-    font-size: 11px;
-    opacity: 0.85;
-}
-.top-avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid white;
-}
-.profile-label {
-    font-size: 12px;
-    font-weight: 700;
-}
-/* ОТДЕЛЬНЫЕ ПОЛНОЭКРАННЫЕ ОКНА (ФОРМЫ) */
-.full-view {
+/* ПОЛНОЭКРАННЫЕ НАЛОЖЕНИЯ (ОКНА ФОРМ) */
+.full-view-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     background-color: var(--bg-color);
-    z-index: 300;
+    z-index: 999;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    animation: slideInRight 0.3s ease;
+    animation: slideUp 0.25s ease;
 }
-@keyframes slideInRight {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 .full-view-header {
     background: linear-gradient(135deg, #1b5e20, #2e7d32);
     color: white;
-    padding: 14px;
+    padding: 14px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
-    z-index: 310;
+    z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 .full-view-header h2 {
@@ -144,12 +145,12 @@ body {
     color: white;
     border: none;
     padding: 6px 12px;
-    border-radius: 12px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
 }
-.full-view-content {
+.full-view-body {
     padding: 16px;
     flex: 1;
 }
@@ -458,7 +459,7 @@ body {
 /* Модальное окно */
 .modal {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); z-index: 400; display: flex; align-items: flex-end;
+    background-color: rgba(0, 0, 0, 0.5); z-index: 2000; display: flex; align-items: flex-end;
 }
 .modal.hidden { display: none; }
 .modal-content {
