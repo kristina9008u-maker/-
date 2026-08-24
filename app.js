@@ -79,11 +79,13 @@ function getTelegramUser() {
         const uUsername = searchParams.get('username');
         const uName = searchParams.get('name');
         const uId = searchParams.get('id');
+        const uPhoto = searchParams.get('photo');
         if (uUsername || uName || uId) {
             return {
                 first_name: uName || uUsername || 'Покупатель',
                 username: uUsername || '',
-                id: uId || ''
+                id: uId || '',
+                photo_url: uPhoto || ''
             };
         }
     } catch (e) {}
@@ -177,6 +179,12 @@ function processUrlSyncParams() {
         const searchParams = new URLSearchParams(window.location.search);
         const localIdFromUrl = searchParams.get('local_id');
         
+        // 0. Сохраняем фото профиля из URL параметра (передаётся ботом)
+        const photoFromUrl = searchParams.get('photo');
+        if (photoFromUrl) {
+            localStorage.setItem('micro_photo_url', photoFromUrl);
+        }
+        
         // 1. Привязка реального ID заказа к локальному (после оформления)
         const syncOrderId = searchParams.get('sync_order_id');
         if (syncOrderId && localIdFromUrl) {
@@ -231,6 +239,7 @@ function processUrlSyncParams() {
                             'Принят': '✅ Принят',
                             'Всё выросло': '🌿 Всё выросло!',
                             'В пути': '🚚 В пути (передан курьеру)',
+                            'Завершён': '🏁 Заказ завершён',
                             'Выполнен': '🎉 Выполнен',
                             'Отменен': '❌ Отменён'
                         };
@@ -364,15 +373,27 @@ function initProfile() {
             } else {
                 userHandle = '@telegram_user';
             }
+            // Фото профиля: из Telegram SDK → из URL параметра → из localStorage → генерируем
             if (u.photo_url) {
                 avatarSrc = u.photo_url;
+                localStorage.setItem('micro_photo_url', u.photo_url);
             } else {
-                avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'User')}&background=2e7d32&color=fff&size=200&font-size=0.4`;
+                const savedPhoto = localStorage.getItem('micro_photo_url');
+                if (savedPhoto) {
+                    avatarSrc = savedPhoto;
+                } else {
+                    avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'User')}&background=2e7d32&color=fff&size=200&font-size=0.4`;
+                }
             }
         } else {
             fullName = fullName || 'Покупатель';
             userHandle = '@telegram_user';
-            avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200`;
+            const savedPhoto = localStorage.getItem('micro_photo_url');
+            if (savedPhoto) {
+                avatarSrc = savedPhoto;
+            } else {
+                avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200`;
+            }
         }
         if (nameEl) nameEl.textContent = fullName;
         if (usernameEl) usernameEl.textContent = userHandle;
@@ -437,7 +458,7 @@ function renderOrderHistory() {
             if (st.includes('Выращивается') || st.includes('Готовится')) statusClass = 'status-growing';
             else if (st.includes('Выполняется') || st.includes('Принят')) statusClass = 'status-in-progress';
             else if (st.includes('доставку') || st.includes('пути')) statusClass = 'status-delivering';
-            else if (st.includes('Выполнен') || st.includes('Получен') || st.includes('выросло')) statusClass = 'status-completed';
+            else if (st.includes('Выполнен') || st.includes('Получен') || st.includes('выросло') || st.includes('завершён') || st.includes('Завершён')) statusClass = 'status-completed';
             else if (st.includes('Отменён') || st.includes('Отменен')) statusClass = 'status-cancelled';
             
             // Показываем реальный ID если есть, иначе локальный
