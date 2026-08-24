@@ -230,9 +230,17 @@ function initProfile() {
         }
         if (savedAddress && addressEl) {
             addressEl.textContent = savedAddress;
-            const input = document.getElementById('cust-address');
-            if (input) input.value = savedAddress;
         }
+        // Восстанавливаем раздельные поля адреса
+        const savedStreet = localStorage.getItem('micro_street');
+        const savedHouse = localStorage.getItem('micro_house');
+        const savedApt = localStorage.getItem('micro_apt');
+        const streetInput = document.getElementById('cust-street');
+        const houseInput = document.getElementById('cust-house');
+        const aptInput = document.getElementById('cust-apt');
+        if (savedStreet && streetInput) streetInput.value = savedStreet;
+        if (savedHouse && houseInput) houseInput.value = savedHouse;
+        if (savedApt && aptInput) aptInput.value = savedApt;
         
         const statOrd = document.getElementById('stat-orders-count');
         if (statOrd) statOrd.textContent = ordersCount;
@@ -417,12 +425,14 @@ function initEvents() {
     });
     const delType = document.getElementById('del-type');
     const addrGrp = document.getElementById('address-group');
-    const addrInput = document.getElementById('cust-address');
     if (delType) {
         const checkAddressRequirement = () => {
             const isDelivery = delType.value.includes('Доставка') || delType.value.includes('курьер');
             if (addrGrp) addrGrp.style.display = isDelivery ? 'block' : 'none';
-            if (addrInput) addrInput.required = isDelivery;
+            const streetInput = document.getElementById('cust-street');
+            const houseInput = document.getElementById('cust-house');
+            if (streetInput) streetInput.required = isDelivery;
+            if (houseInput) houseInput.required = isDelivery;
         };
         delType.onchange = checkAddressRequirement;
         checkAddressRequirement();
@@ -444,30 +454,28 @@ function initEvents() {
                 return;
             }
             const dType = document.getElementById('del-type').value;
-            const addressInputEl = document.getElementById('cust-address');
-            const addressVal = addressInputEl ? addressInputEl.value.trim() : '';
+            const streetVal = (document.getElementById('cust-street')?.value || '').trim();
+            const houseVal = (document.getElementById('cust-house')?.value || '').trim();
+            const aptVal = (document.getElementById('cust-apt')?.value || '').trim();
             if (!dType.includes('Самовывоз')) {
-                if (!addressVal || addressVal.length < 5) {
-                    alert('⚠️ Укажите адрес доставки: улицу, дом и квартиру.\nПример: ул. Гоголевская, д. 39, кв. 2');
-                    if (addressInputEl) addressInputEl.focus();
+                if (!streetVal || streetVal.length < 2) {
+                    alert('⚠️ Введите название улицы');
+                    document.getElementById('cust-street')?.focus();
                     return;
                 }
-                // Проверка: адрес должен содержать название улицы
-                const streetPattern = /(?:ул\.|улица|пер\.|переулок|пр\.|проспект|бул\.|бульвар|ш\.|шоссе|наб\.|набережная|мкр\.|микрорайон|кв-л|квартал)/i;
-                if (!streetPattern.test(addressVal)) {
-                    alert('⚠️ Укажите тип улицы (ул., пер., пр. и т.д.).\nПример: ул. Гоголевская, д. 39, кв. 2');
-                    if (addressInputEl) addressInputEl.focus();
-                    return;
-                }
-                // Проверка: адрес должен содержать номер дома
-                const housePattern = /(?:д\.|дом|д\s)?\s*\d+/i;
-                if (!housePattern.test(addressVal)) {
-                    alert('⚠️ Укажите номер дома.\nПример: ул. Гоголевская, д. 39, кв. 2');
-                    if (addressInputEl) addressInputEl.focus();
+                if (!houseVal || !/\d/.test(houseVal)) {
+                    alert('⚠️ Введите номер дома');
+                    document.getElementById('cust-house')?.focus();
                     return;
                 }
             }
-            const address = dType.includes('Самовывоз') ? 'Самовывоз из фермы' : addressVal;
+            let address;
+            if (dType.includes('Самовывоз')) {
+                address = 'Самовывоз из фермы';
+            } else {
+                address = `ул. ${streetVal}, д. ${houseVal}`;
+                if (aptVal) address += `, кв. ${aptVal}`;
+            }
             
             const rawDate = document.getElementById('del-date').value;
             const selectedTime = document.getElementById('del-time').value;
@@ -481,6 +489,9 @@ function initEvents() {
             const payMethod = document.getElementById('pay-method').value;
             localStorage.setItem('micro_phone', phone);
             localStorage.setItem('micro_address', address);
+            localStorage.setItem('micro_street', streetVal);
+            localStorage.setItem('micro_house', houseVal);
+            localStorage.setItem('micro_apt', aptVal);
             if (name) {
                 localStorage.setItem('micro_user_name', name);
             }
