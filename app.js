@@ -447,8 +447,22 @@ function initEvents() {
             const addressInputEl = document.getElementById('cust-address');
             const addressVal = addressInputEl ? addressInputEl.value.trim() : '';
             if (!dType.includes('Самовывоз')) {
-                if (!addressVal || addressVal.length < 3) {
-                    alert('⚠️ Вы выбрали доставку курьером! Пожалуйста, укажите адрес (город, улица, дом, квартира).');
+                if (!addressVal || addressVal.length < 5) {
+                    alert('⚠️ Укажите адрес доставки: улицу, дом и квартиру.\nПример: ул. Гоголевская, д. 39, кв. 2');
+                    if (addressInputEl) addressInputEl.focus();
+                    return;
+                }
+                // Проверка: адрес должен содержать название улицы
+                const streetPattern = /(?:ул\.|улица|пер\.|переулок|пр\.|проспект|бул\.|бульвар|ш\.|шоссе|наб\.|набережная|мкр\.|микрорайон|кв-л|квартал)/i;
+                if (!streetPattern.test(addressVal)) {
+                    alert('⚠️ Укажите тип улицы (ул., пер., пр. и т.д.).\nПример: ул. Гоголевская, д. 39, кв. 2');
+                    if (addressInputEl) addressInputEl.focus();
+                    return;
+                }
+                // Проверка: адрес должен содержать номер дома
+                const housePattern = /(?:д\.|дом|д\s)?\s*\d+/i;
+                if (!housePattern.test(addressVal)) {
+                    alert('⚠️ Укажите номер дома.\nПример: ул. Гоголевская, д. 39, кв. 2');
                     if (addressInputEl) addressInputEl.focus();
                     return;
                 }
