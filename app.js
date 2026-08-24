@@ -752,7 +752,7 @@ function initEvents() {
             }
 
             // Отправляем заказ на сервер
-            const API_URL = "https://8cc0a186db83c0.lhr.life/api/order"; // Временный туннель для тестов
+            const API_URL = "https://6bab223cf2c8d4.lhr.life/api/order"; // Временный туннель для тестов
             
             fetch(API_URL, {
                 method: 'POST',
