@@ -67,17 +67,6 @@
                 <span class="status-badge">🌱 Эко-Ценитель микрозелени</span>
             </div>
             <div class="profile-block">
-                <h3>📜 История и статусы ваших заказов</h3>
-                <div id="orders-history-container" class="orders-history"></div>
-            </div>
-            <div class="profile-block">
-                <h3>📍 Сохраненные данные доставки</h3>
-                <div class="saved-info-box">
-                    <p>📱 <strong>Телефон:</strong> <span id="saved-phone">Не указан</span></p>
-                    <p>🏠 <strong>Адрес:</strong> <span id="saved-address">Не указан</span></p>
-                </div>
-            </div>
-            <div class="profile-block">
                 <h3>📊 Статистика покупок</h3>
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -88,6 +77,17 @@
                         <span class="stat-num" id="stat-trays-count">0</span>
                         <span class="stat-label">Лотков зелени</span>
                     </div>
+                </div>
+            </div>
+            <div class="profile-block">
+                <h3>📜 История и статусы ваших заказов</h3>
+                <div id="orders-history-container" class="orders-history"></div>
+            </div>
+            <div class="profile-block">
+                <h3>📍 Сохраненные данные доставки</h3>
+                <div class="saved-info-box">
+                    <p>📱 <strong>Телефон:</strong> <span id="saved-phone">Не указан</span></p>
+                    <p>🏠 <strong>Адрес:</strong> <span id="saved-address">Не указан</span></p>
                 </div>
             </div>
         </div>
@@ -134,9 +134,30 @@
                         <option value="🏃 Самовывоз">🏃 Самовывоз из фермы (ул. Зеленая, 15)</option>
                     </select>
                 </div>
-                <div class="form-group" id="address-group">
-                    <label>📍 Адрес доставки:</label>
-                    <input type="text" id="cust-address" placeholder="г. Москва, ул. Ленина, д. 10, кв. 5">
+                <div id="address-group">
+                    <div class="form-group">
+                        <label>📍 Улица:</label>
+                        <div class="input-prefix-wrap">
+                            <span class="input-prefix">Ул.</span>
+                            <input type="text" id="cust-street" placeholder="Гоголевская" required>
+                        </div>
+                    </div>
+                    <div class="address-row">
+                        <div class="form-group">
+                            <label>🏠 Дом:</label>
+                            <div class="input-prefix-wrap">
+                                <span class="input-prefix">д.</span>
+                                <input type="text" id="cust-house" placeholder="39" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>🚪 Квартира:</label>
+                            <div class="input-prefix-wrap">
+                                <span class="input-prefix">кв.</span>
+                                <input type="text" id="cust-apt" placeholder="2">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>📅 Выберите дату получения:</label>
