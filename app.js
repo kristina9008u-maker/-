@@ -175,30 +175,28 @@ function getOrderWord(n) {
 function processUrlSyncParams() {
     try {
         const searchParams = new URLSearchParams(window.location.search);
+        const localIdFromUrl = searchParams.get('local_id');
         
-        // 1. Привязка реального ID заказа к локальному
+        // 1. Привязка реального ID заказа к локальному (после оформления)
         const syncOrderId = searchParams.get('sync_order_id');
-        const localId = searchParams.get('local_id');
-        if (syncOrderId && localId) {
+        if (syncOrderId && localIdFromUrl) {
             const historyJSON = localStorage.getItem('micro_orders_history');
             if (historyJSON) {
                 let history = JSON.parse(historyJSON);
-                const localIdNum = parseInt(localId);
+                const localIdNum = parseInt(localIdFromUrl);
                 const realId = parseInt(syncOrderId);
-                // Ищем заказ по локальному ID и привязываем реальный
                 const order = history.find(o => o.id === localIdNum || o.id === String(localIdNum));
                 if (order) {
                     order.real_id = realId;
                     localStorage.setItem('micro_orders_history', JSON.stringify(history));
-                    console.log(`Sync: local #${localId} → real #${syncOrderId}`);
+                    console.log(`Sync: local #${localIdFromUrl} → real #${syncOrderId}`);
                 }
             }
         }
         
-        // 2. Обновление статуса заказа по реальному ID
+        // 2. Обновление статуса заказа
         const orderUpdate = searchParams.get('order_update');
         if (orderUpdate) {
-            // Формат: "ORDER_ID:NEW_STATUS"
             const colonIdx = orderUpdate.indexOf(':');
             if (colonIdx > 0) {
                 const updateOrderId = parseInt(orderUpdate.substring(0, colonIdx));
@@ -207,17 +205,31 @@ function processUrlSyncParams() {
                 const historyJSON = localStorage.getItem('micro_orders_history');
                 if (historyJSON) {
                     let history = JSON.parse(historyJSON);
-                    // Ищем по real_id или по id
-                    const order = history.find(o => 
-                        o.real_id === updateOrderId || 
-                        o.id === updateOrderId || 
-                        o.id === String(updateOrderId)
-                    );
+                    
+                    // Ищем заказ: сначала по real_id, потом по local_id из URL, потом по id
+                    let order = history.find(o => o.real_id === updateOrderId);
+                    if (!order && localIdFromUrl) {
+                        const lid = parseInt(localIdFromUrl);
+                        order = history.find(o => o.id === lid || o.id === String(lid));
+                    }
+                    if (!order) {
+                        order = history.find(o => o.id === updateOrderId || o.id === String(updateOrderId));
+                    }
+                    // Последний шанс — берём самый последний заказ
+                    if (!order && history.length > 0) {
+                        order = history[history.length - 1];
+                    }
+                    
                     if (order) {
+                        // Привязываем real_id если ещё не привязан
+                        if (!order.real_id) {
+                            order.real_id = updateOrderId;
+                        }
                         // Маппинг статусов из бота в отображаемые
                         const statusMap = {
                             'Выращивается': '🌱 Выращивается',
                             'Принят': '✅ Принят',
+                            'Всё выросло': '🌿 Всё выросло!',
                             'В пути': '🚚 В пути (передан курьеру)',
                             'Выполнен': '🎉 Выполнен',
                             'Отменен': '❌ Отменён'
@@ -425,7 +437,7 @@ function renderOrderHistory() {
             if (st.includes('Выращивается') || st.includes('Готовится')) statusClass = 'status-growing';
             else if (st.includes('Выполняется') || st.includes('Принят')) statusClass = 'status-in-progress';
             else if (st.includes('доставку') || st.includes('пути')) statusClass = 'status-delivering';
-            else if (st.includes('Выполнен') || st.includes('Получен')) statusClass = 'status-completed';
+            else if (st.includes('Выполнен') || st.includes('Получен') || st.includes('выросло')) statusClass = 'status-completed';
             else if (st.includes('Отменён') || st.includes('Отменен')) statusClass = 'status-cancelled';
             
             // Показываем реальный ID если есть, иначе локальный
