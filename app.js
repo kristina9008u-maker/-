@@ -1,5 +1,25 @@
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
+
+// --- ГЛОБАЛЬНЫЙ СБРОС (ВАЙП) ДАННЫХ КЛИЕНТОВ ---
+const RESET_VERSION = "1.0"; // Смена версии приведет к полному сбросу у всех
+if (localStorage.getItem('micro_reset_version') !== RESET_VERSION) {
+    // Очищаем все данные приложения (история заказов, прогресс, сохраненные адреса)
+    localStorage.removeItem('micro_orders_history');
+    localStorage.removeItem('micro_orders_count');
+    localStorage.removeItem('micro_trays_count');
+    localStorage.removeItem('micro_phone');
+    localStorage.removeItem('micro_address');
+    localStorage.removeItem('micro_street');
+    localStorage.removeItem('micro_house');
+    localStorage.removeItem('micro_apt');
+    localStorage.removeItem('micro_user_name');
+    localStorage.removeItem('micro_photo_url');
+    localStorage.setItem('micro_reset_version', RESET_VERSION);
+    console.log("🔥 Выполнен полный вайп базы на стороне клиента!");
+}
+// ----------------------------------------------
+
 // Декодирование любых уровней URL-кодирования
 function safeDecode(str) {
     if (!str) return '';
