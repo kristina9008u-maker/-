@@ -745,11 +745,39 @@ function initEvents() {
             updateCartUI();
             document.getElementById('checkout-modal').classList.add('hidden');
             window.closeCartView();
-            if (tg && tg.sendData) {
-                tg.sendData(JSON.stringify(newOrder));
-            } else {
-                alert(`Заказ #${newOrderId} оформлен! Статус: ⚙️ Новый`);
+            const u = getTelegramUser();
+            if (u && u.id) {
+                newOrder.user_id = u.id;
+                newOrder.username = u.username || '';
             }
+
+            // Отправляем заказ на сервер
+            const API_URL = "https://8cc0a186db83c0.lhr.life/api/order"; // Временный туннель для тестов
+            
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newOrder)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (tg && tg.close) {
+                        tg.close();
+                    } else {
+                        alert(`Заказ #${data.order_id} успешно оформлен!`);
+                    }
+                } else {
+                    alert("Ошибка при оформлении заказа: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка API:', error);
+                alert("Не удалось связаться с сервером. Проверьте подключение или обратитесь к менеджеру.");
+                // Открываем профиль, если сервер недоступен, чтобы юзер хотя бы увидел локальный заказ
+                initProfile();
+                window.openProfileView();
+            });
             initProfile();
             window.openProfileView();
         };
