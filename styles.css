@@ -495,3 +495,34 @@ body {
     width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 12px;
     border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px;
 }
+/* Поля адреса с префиксами */
+.input-prefix-wrap {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: var(--bg-color);
+    overflow: hidden;
+}
+.input-prefix {
+    padding: 10px 8px 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-color);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.input-prefix-wrap input {
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    flex: 1;
+    padding-left: 0 !important;
+}
+.address-row {
+    display: flex;
+    gap: 10px;
+}
+.address-row .form-group {
+    flex: 1;
+}
