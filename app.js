@@ -93,6 +93,155 @@ function getTelegramUser() {
     }
     return null;
 }
+
+// =================== MMORPG СИСТЕМА РАНГОВ ===================
+const RANKS = [
+    { minOrders: 0,  name: '🌰 Зёрнышко',         subtitle: 'Новичок',      cssClass: 'rank-seed',    nextAt: 1   },
+    { minOrders: 1,  name: '🌱 Росток',            subtitle: 'Первые шаги',  cssClass: 'rank-sprout',  nextAt: 3   },
+    { minOrders: 3,  name: '🌿 Эко-Ценитель',      subtitle: 'Постоянный',   cssClass: 'rank-eco',     nextAt: 6   },
+    { minOrders: 6,  name: '🍀 Зелёный Гурман',    subtitle: 'Опытный',      cssClass: 'rank-gourmet', nextAt: 11  },
+    { minOrders: 11, name: '🌳 Мастер Урожая',     subtitle: 'Продвинутый',  cssClass: 'rank-master',  nextAt: 21  },
+    { minOrders: 21, name: '🏆 Легенда Фермы',     subtitle: 'Элита',        cssClass: 'rank-legend',  nextAt: 51  },
+    { minOrders: 51, name: '👑 Зелёный Император',  subtitle: 'Максимум!',    cssClass: 'rank-emperor', nextAt: null }
+];
+
+function getRankInfo(ordersCount) {
+    let rank = RANKS[0];
+    for (let i = RANKS.length - 1; i >= 0; i--) {
+        if (ordersCount >= RANKS[i].minOrders) {
+            rank = RANKS[i];
+            break;
+        }
+    }
+    // Прогресс до следующего ранга
+    let progressPercent = 100;
+    let ordersToNext = 0;
+    let nextRankName = null;
+    if (rank.nextAt !== null) {
+        const rangeStart = rank.minOrders;
+        const rangeEnd = rank.nextAt;
+        const progressInRange = ordersCount - rangeStart;
+        const totalRange = rangeEnd - rangeStart;
+        progressPercent = Math.min(100, Math.round((progressInRange / totalRange) * 100));
+        ordersToNext = rangeEnd - ordersCount;
+        // Найти следующий ранг
+        const nextIdx = RANKS.indexOf(rank) + 1;
+        if (nextIdx < RANKS.length) {
+            nextRankName = RANKS[nextIdx].name;
+        }
+    }
+    return { rank, progressPercent, ordersToNext, nextRankName };
+}
+
+function updateRankUI(ordersCount) {
+    const { rank, progressPercent, ordersToNext, nextRankName } = getRankInfo(ordersCount);
+    
+    const badgeEl = document.getElementById('rank-badge');
+    const fillEl = document.getElementById('rank-progress-fill');
+    const textEl = document.getElementById('rank-progress-text');
+    const containerEl = document.getElementById('rank-progress-container');
+    
+    if (badgeEl) {
+        badgeEl.textContent = `${rank.name} — ${rank.subtitle}`;
+        // Убираем все rank- классы и добавляем текущий
+        badgeEl.className = 'status-badge';
+        badgeEl.classList.add(rank.cssClass);
+    }
+    
+    if (fillEl) {
+        fillEl.style.width = `${progressPercent}%`;
+    }
+    
+    if (textEl) {
+        if (rank.nextAt === null) {
+            textEl.textContent = '🎊 Максимальный ранг достигнут!';
+        } else {
+            const orderWord = getOrderWord(ordersToNext);
+            textEl.textContent = `До «${nextRankName}»: ещё ${ordersToNext} ${orderWord}`;
+        }
+    }
+}
+
+function getOrderWord(n) {
+    const abs = Math.abs(n) % 100;
+    const lastDigit = abs % 10;
+    if (abs >= 11 && abs <= 19) return 'заказов';
+    if (lastDigit === 1) return 'заказ';
+    if (lastDigit >= 2 && lastDigit <= 4) return 'заказа';
+    return 'заказов';
+}
+
+// =================== СИНХРОНИЗАЦИЯ СТАТУСОВ ЗАКАЗОВ ===================
+function processUrlSyncParams() {
+    try {
+        const searchParams = new URLSearchParams(window.location.search);
+        
+        // 1. Привязка реального ID заказа к локальному
+        const syncOrderId = searchParams.get('sync_order_id');
+        const localId = searchParams.get('local_id');
+        if (syncOrderId && localId) {
+            const historyJSON = localStorage.getItem('micro_orders_history');
+            if (historyJSON) {
+                let history = JSON.parse(historyJSON);
+                const localIdNum = parseInt(localId);
+                const realId = parseInt(syncOrderId);
+                // Ищем заказ по локальному ID и привязываем реальный
+                const order = history.find(o => o.id === localIdNum || o.id === String(localIdNum));
+                if (order) {
+                    order.real_id = realId;
+                    localStorage.setItem('micro_orders_history', JSON.stringify(history));
+                    console.log(`Sync: local #${localId} → real #${syncOrderId}`);
+                }
+            }
+        }
+        
+        // 2. Обновление статуса заказа по реальному ID
+        const orderUpdate = searchParams.get('order_update');
+        if (orderUpdate) {
+            // Формат: "ORDER_ID:NEW_STATUS"
+            const colonIdx = orderUpdate.indexOf(':');
+            if (colonIdx > 0) {
+                const updateOrderId = parseInt(orderUpdate.substring(0, colonIdx));
+                const newStatus = orderUpdate.substring(colonIdx + 1);
+                
+                const historyJSON = localStorage.getItem('micro_orders_history');
+                if (historyJSON) {
+                    let history = JSON.parse(historyJSON);
+                    // Ищем по real_id или по id
+                    const order = history.find(o => 
+                        o.real_id === updateOrderId || 
+                        o.id === updateOrderId || 
+                        o.id === String(updateOrderId)
+                    );
+                    if (order) {
+                        // Маппинг статусов из бота в отображаемые
+                        const statusMap = {
+                            'Выращивается': '🌱 Выращивается',
+                            'Принят': '✅ Принят',
+                            'В пути': '🚚 В пути (передан курьеру)',
+                            'Выполнен': '🎉 Выполнен',
+                            'Отменен': '❌ Отменён'
+                        };
+                        order.status = statusMap[newStatus] || newStatus;
+                        localStorage.setItem('micro_orders_history', JSON.stringify(history));
+                        console.log(`Status updated: order #${updateOrderId} → ${newStatus}`);
+                    }
+                }
+            }
+        }
+        
+        // 3. Автоматически открыть профиль, если запрошено
+        const openProfile = searchParams.get('open_profile');
+        if (openProfile === '1') {
+            setTimeout(() => {
+                window.openProfileView();
+            }, 300);
+        }
+    } catch (err) {
+        console.error('URL sync error:', err);
+    }
+}
+
 // Глобальные функции открытия и закрытия полноэкранных форм
 window.openProfileView = function() {
     initProfile();
@@ -223,7 +372,7 @@ function initProfile() {
         }
         const savedPhone = localStorage.getItem('micro_phone');
         const savedAddress = localStorage.getItem('micro_address');
-        const ordersCount = localStorage.getItem('micro_orders_count') || '0';
+        const ordersCount = parseInt(localStorage.getItem('micro_orders_count') || '0');
         const traysCount = localStorage.getItem('micro_trays_count') || '0';
         if (savedPhone && phoneEl) {
             phoneEl.textContent = savedPhone;
@@ -247,6 +396,10 @@ function initProfile() {
         
         const statTr = document.getElementById('stat-trays-count');
         if (statTr) statTr.textContent = traysCount;
+        
+        // Обновление MMORPG ранга
+        updateRankUI(ordersCount);
+        
         renderOrderHistory();
     } catch (err) {
         console.error('Profile init error:', err);
@@ -273,10 +426,14 @@ function renderOrderHistory() {
             else if (st.includes('Выполняется') || st.includes('Принят')) statusClass = 'status-in-progress';
             else if (st.includes('доставку') || st.includes('пути')) statusClass = 'status-delivering';
             else if (st.includes('Выполнен') || st.includes('Получен')) statusClass = 'status-completed';
+            else if (st.includes('Отменён') || st.includes('Отменен')) statusClass = 'status-cancelled';
+            
+            // Показываем реальный ID если есть, иначе локальный
+            const displayId = order.real_id || order.id;
             let itemsText = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
             card.innerHTML = `
                 <div class="order-card-header">
-                    <span class="order-id-title">Заказ #${order.id}</span>
+                    <span class="order-id-title">Заказ #${displayId}</span>
                     <span class="order-date">${order.date}</span>
                 </div>
                 <div>
@@ -517,7 +674,7 @@ function initEvents() {
             const newOrder = {
                 id: newOrderId,
                 date: dateStr,
-                status: "⚙️ Выполняется (Принят)",
+                status: "⚙️ Новый (ожидает подтверждения)",
                 items: itemsArr,
                 total_price: totalPrice,
                 customer_name: name,
@@ -538,7 +695,7 @@ function initEvents() {
             if (tg && tg.sendData) {
                 tg.sendData(JSON.stringify(newOrder));
             } else {
-                alert(`Заказ #${newOrderId} оформлен! Статус: ⚙️ Выполняется`);
+                alert(`Заказ #${newOrderId} оформлен! Статус: ⚙️ Новый`);
             }
             initProfile();
             window.openProfileView();
@@ -582,6 +739,8 @@ function bootApp() {
     if (tg) {
         try { tg.ready(); tg.expand(); } catch(e){}
     }
+    // Обработка параметров синхронизации из URL (обновление статусов)
+    try { processUrlSyncParams(); } catch(e){ console.error('Sync params error:', e); }
     try { setupDatePicker(); } catch(e){ console.error(e); }
     try { initProfile(); } catch(e){ console.error(e); }
     try { renderCatalog('all'); } catch(e){ console.error(e); }
