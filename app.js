@@ -333,12 +333,12 @@ function setupDatePicker() {
     const delDateInput = document.getElementById('del-date');
     const growthHintEl = document.getElementById('growth-hint');
     if (!delDateInput) return;
-    let maxMinDays = 1;
+    let maxMinDays = 0; // ВРЕМЕННО 0 ДЛЯ ТЕСТОВ (БЫЛО 1)
     Object.keys(cart).forEach(id => {
         const p = PRODUCTS.find(prod => prod.id == id);
         if (p && p.growth_min) {
             if (p.growth_min > maxMinDays) {
-                maxMinDays = p.growth_min;
+                maxMinDays = 0; // ВРЕМЕННО ОБНУЛЯЕМ ДАЖЕ РОСТ (УБРАТЬ ПОСЛЕ ТЕСТА)
             }
         }
     });
