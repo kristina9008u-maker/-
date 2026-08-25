@@ -315,14 +315,30 @@ window.closeCartView = function() {
 };
 // Список товаров микрозелени с ВРЕМЕННЫМИ РАМКАМИ роста (growth_min и growth_max)
 const PRODUCTS = [
-    { id: 1, category: "live_trays", name: "Горошек Маш", price: 150, weight: "1 лоток (10x15 см)", growth_min: 9, growth_max: 12, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 2, category: "live_trays", name: "Подсолнечник", price: 180, weight: "1 лоток (10x15 см)", growth_min: 9, growth_max: 12, img: "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&q=80" },
-    { id: 3, category: "live_trays", name: "Редис Ред Коралл", price: 160, weight: "1 лоток (10x15 см)", growth_min: 5, growth_max: 7, img: "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=400&q=80" },
-    { id: 4, category: "live_trays", name: "Брокколи Рапини", price: 170, weight: "1 лоток (10x15 см)", growth_min: 7, growth_max: 10, img: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=400&q=80" },
-    { id: 5, category: "cut_greens", name: "Срез Горошка", price: 200, weight: "100 грамм", growth_min: 1, growth_max: 2, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 6, category: "cut_greens", name: "Микс-Срез 'Витаминный'", price: 250, weight: "100 грамм", growth_min: 1, growth_max: 2, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" },
-    { id: 7, category: "sets", name: "Набор 'Витаминный старт'", price: 500, weight: "3 лотка", growth_min: 7, growth_max: 10, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-    { id: 8, category: "sets", name: "Подписка 'Месяц свежести'", price: 1800, weight: "4 недели (12 лотков)", growth_min: 7, growth_max: 10, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" }
+    {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 2, "category": "spicy_herbs", "name": "Мелиса \"Ароматный лимон\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 3, "category": "spicy_herbs", "name": "Мелиса \"Турецкая\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 4, "category": "spicy_herbs", "name": "Базилик \"Зеленый - генуэзский\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 5, "category": "spicy_herbs", "name": "Базилик \"Маргарет\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 6, "category": "spicy_herbs", "name": "Базилик \"Итальянский лимонный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 7, "category": "spicy_herbs", "name": "Базилик \"Красный рубин\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 8, "category": "spicy_herbs", "name": "Кинза", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 25, "growth_max": 30, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 9, "category": "spicy_herbs", "name": "Руккола", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 10, "category": "salads", "name": "Салат \"Вишневая дымка - мини\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 11, "category": "salads", "name": "Салат \"Американский коричневый кудрявый\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 12, "category": "salads", "name": "Капуста \"Мизуна\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 13, "category": "salads", "name": "Кресс - салат \"Кучерявый\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 14, "category": "salads", "name": "Кресс - салат \"Крупнолистовой\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 15, "category": "salads", "name": "Брокколи", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 16, "category": "salads", "name": "Кольраби \"Фиолетово - пурпурный\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 17, "category": "salads", "name": "Горчица красная \"Рэд леон\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 18, "category": "salads", "name": "Горчица салатная \"Веснушка\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 19, "category": "classic", "name": "Редис \"Санго\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 20, "category": "classic", "name": "Редис \"Ред коралл\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 21, "category": "classic", "name": "Амарант \"Пэшн\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 22, "category": "classic", "name": "Амарант \"Легенда\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 23, "category": "classic", "name": "Горох \"Элита\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 24, "category": "classic", "name": "Подсолнечник", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
 ];
 let cart = {};
 let currentCategory = 'all';
