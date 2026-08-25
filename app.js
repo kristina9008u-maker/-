@@ -539,6 +539,9 @@ function renderCatalog(category = 'all') {
     }
 }
 window.updateQty = function(id, qty) {
+    if (tg && tg.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('light');
+    }
     if (qty <= 0) {
         delete cart[id];
     } else {
@@ -643,15 +646,32 @@ function initEvents() {
             const houseInput = document.getElementById('cust-house');
             if (streetInput) streetInput.required = isDelivery;
             if (houseInput) houseInput.required = isDelivery;
+            if (typeof updateModalSummary === 'function') updateModalSummary();
         };
         delType.onchange = checkAddressRequirement;
         checkAddressRequirement();
     }
+    
+    // Глобальный обработчик MainButton
+    if (tg && tg.MainButton) {
+        tg.MainButton.onClick(() => {
+            const modalEl = document.getElementById('checkout-modal');
+            if (modalEl && !modalEl.classList.contains('hidden')) {
+                triggerUpsellOrSubmit();
+            }
+        });
+    }
+    
     const btnCheckout1 = document.getElementById('btn-cart-checkout');
-    if (btnCheckout1) btnCheckout1.onclick = openCheckoutModal;
+    if (btnCheckout1) {
+        // Прячем HTML-кнопку, если доступна MainButton
+        if (tg && tg.MainButton) btnCheckout1.style.display = 'none';
+        btnCheckout1.onclick = openCheckoutModal;
+    }
     const btnCloseModal = document.getElementById('btn-close-modal');
     if (btnCloseModal) btnCloseModal.onclick = () => {
         document.getElementById('checkout-modal').classList.add('hidden');
+        if (tg && tg.MainButton) tg.MainButton.hide();
     };
     const orderForm = document.getElementById('order-form');
     if (orderForm) {
@@ -725,6 +745,14 @@ function initEvents() {
                     itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: cart[id], total: sum });
                 }
             });
+            if (dType.includes('Доставка') || dType.includes('курьер')) {
+                totalPrice += 200;
+                itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 200, quantity: 1, total: 200 });
+            }
+            
+            if (tg && tg.MainButton) {
+                tg.MainButton.showProgress(true);
+            }
             const currentOrdersCount = parseInt(localStorage.getItem('micro_orders_count') || '0') + 1;
             const currentTraysCount = parseInt(localStorage.getItem('micro_trays_count') || '0') + totalTraysCount;
             localStorage.setItem('micro_orders_count', currentOrdersCount);
@@ -782,6 +810,10 @@ function initEvents() {
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Подтвердить заказ";
                 }
+                if (tg && tg.MainButton) {
+                    tg.MainButton.hideProgress();
+                    tg.MainButton.hide();
+                }
             })
             .catch(error => {
                 console.error('Ошибка API:', error);
@@ -790,6 +822,7 @@ function initEvents() {
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Подтвердить заказ";
                 }
+                if (tg && tg.MainButton) tg.MainButton.hideProgress();
                 // Открываем профиль, если сервер недоступен, чтобы юзер хотя бы увидел локальный заказ
                 initProfile();
                 window.openProfileView();
@@ -799,13 +832,7 @@ function initEvents() {
         };
     }
 }
-function openCheckoutModal() {
-    setupDatePicker();
-    const phoneInput = document.getElementById('cust-phone');
-    const savedPhone = localStorage.getItem('micro_phone');
-    if (phoneInput) {
-        phoneInput.value = savedPhone ? formatPhoneNumber(savedPhone) : '';
-    }
+function updateModalSummary() {
     let summaryHTML = '<strong>Состав заказа:</strong><br>';
     let total = 0;
     Object.keys(cart).forEach(id => {
@@ -816,9 +843,62 @@ function openCheckoutModal() {
             summaryHTML += `• ${p.name} x ${cart[id]} шт. = ${sum} ₽<br>`;
         }
     });
+    const delType = document.getElementById('del-type')?.value || '';
+    if (delType.includes('Доставка') || delType.includes('курьер')) {
+        total += 200;
+        summaryHTML += `• Доставка (курьер) = 200 ₽<br>`;
+    }
+    
     summaryHTML += `<br><strong>Итого к оплате: ${total} ₽</strong>`;
     const summEl = document.getElementById('modal-summary');
     if (summEl) summEl.innerHTML = summaryHTML;
+    
+    if (tg && tg.MainButton) {
+        tg.MainButton.text = `ОПЛАТИТЬ ${total} ₽`;
+        tg.MainButton.color = '#2e7d32';
+        tg.MainButton.show();
+    }
+}
+
+function triggerUpsellOrSubmit() {
+    const orderForm = document.getElementById('order-form');
+    if (!orderForm) return;
+    if (!orderForm.checkValidity()) {
+        orderForm.reportValidity();
+        return;
+    }
+    // Если уже есть микс-срез (id: 6), не предлагаем
+    if (cart[6]) {
+        orderForm.requestSubmit();
+        return;
+    }
+    if (tg && tg.showPopup) {
+        tg.showPopup({
+            title: 'Витаминный заряд 🚀',
+            message: 'Добавьте Микс-срез "Витаминный" всего за 200₽ к этому заказу?',
+            buttons: [
+                {id: 'yes', text: 'Да, добавить!', type: 'default'},
+                {id: 'no', text: 'Нет, спасибо', type: 'cancel'}
+            ]
+        }, function(buttonId) {
+            if (buttonId === 'yes') {
+                updateQty(6, 1);
+            }
+            orderForm.requestSubmit();
+        });
+    } else {
+        orderForm.requestSubmit();
+    }
+}
+
+function openCheckoutModal() {
+    setupDatePicker();
+    const phoneInput = document.getElementById('cust-phone');
+    const savedPhone = localStorage.getItem('micro_phone');
+    if (phoneInput) {
+        phoneInput.value = savedPhone ? formatPhoneNumber(savedPhone) : '';
+    }
+    updateModalSummary();
     
     const modalEl = document.getElementById('checkout-modal');
     if (modalEl) modalEl.classList.remove('hidden');
