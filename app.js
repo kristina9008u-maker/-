@@ -744,8 +744,12 @@ function initEvents() {
                 }
             });
             if (dType.includes('Доставка') || dType.includes('курьер')) {
-                totalPrice += 200;
-                itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 200, quantity: 1, total: 200 });
+                if (totalPrice >= 390) {
+                    itemsArr.push({ product_id: 'delivery', name: 'Доставка (Бесплатно)', weight: '-', price: 0, quantity: 1, total: 0 });
+                } else {
+                    totalPrice += 100;
+                    itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 100, quantity: 1, total: 100 });
+                }
             }
             
             if (tg && tg.MainButton) {
@@ -843,8 +847,12 @@ function updateModalSummary() {
     });
     const delType = document.getElementById('del-type')?.value || '';
     if (delType.includes('Доставка') || delType.includes('курьер')) {
-        total += 200;
-        summaryHTML += `• Доставка (курьер) = 200 ₽<br>`;
+        if (total >= 390) {
+            summaryHTML += `• Доставка (курьер) = 0 ₽ (БЕСПЛАТНО)<br>`;
+        } else {
+            total += 100;
+            summaryHTML += `• Доставка (курьер) = 100 ₽<br>`;
+        }
     }
     
     summaryHTML += `<br><strong>Итого к оплате: ${total} ₽</strong>`;
