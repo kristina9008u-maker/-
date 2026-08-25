@@ -752,7 +752,7 @@ function initEvents() {
             }
 
             // Отправляем заказ на сервер
-            const API_URL = "https://075f34a33405e3.lhr.life/api/order"; // Временный туннель для тестов
+            const API_URL = "https://microleaf-oe4o.onrender.com/api/order"; // Облачный сервер (Render)
             
             fetch(API_URL, {
                 method: 'POST',
