@@ -742,7 +742,9 @@ function initEvents() {
                 const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
                 dateFormatted = `${parseInt(d)} ${months[parseInt(m)-1]}`;
                 if (selectedTime) {
-                    deliveryIso = `${y}-${m}-${d}T${selectedTime}:00`;
+                    const timeMatch = selectedTime.match(/(\d{2}:\d{2})/);
+                    const extTime = timeMatch ? timeMatch[1] : "12:00";
+                    deliveryIso = `${y}-${m}-${d}T${extTime}:00`;
                 }
             }
             const delDateCombined = `${dateFormatted}, ${selectedTime}`;
