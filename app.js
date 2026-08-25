@@ -325,6 +325,9 @@ const PRODUCTS = [
     { id: 8, category: "sets", name: "Подписка 'Месяц свежести'", price: 1800, weight: "4 недели (12 лотков)", growth_min: 7, growth_max: 10, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" }
 ];
 let cart = {};
+let currentCategory = 'all';
+window.appliedPromo = null;
+
 // Динамический расчёт МИНИМАЛЬНОЙ даты готовности заказа (по growth_min)
 function setupDatePicker() {
     const delDateInput = document.getElementById('del-date');
@@ -629,6 +632,22 @@ function initEvents() {
             }
         });
     }
+    const btnPromo = document.getElementById('btn-apply-promo');
+    if (btnPromo) {
+        btnPromo.onclick = () => {
+            const codeInput = document.getElementById('promo-code');
+            if (codeInput) {
+                const code = codeInput.value.trim().toUpperCase();
+                if (code === 'GREEN10') {
+                    window.appliedPromo = 'GREEN10';
+                    alert('✅ Промокод GREEN10 применен! Скидка 10% на все товары.');
+                    updateModalSummary();
+                } else if (code) {
+                    alert('❌ Неверный или просроченный промокод.');
+                }
+            }
+        };
+    }
     document.querySelectorAll('.cat-btn').forEach(btn => {
         btn.onclick = (e) => {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -732,18 +751,29 @@ function initEvents() {
             if (name) {
                 localStorage.setItem('micro_user_name', name);
             }
+            const isSubscription = document.getElementById('is-subscription')?.checked || false;
             let itemsArr = [];
-            let totalPrice = 0;
+            let productsTotal = 0;
             let totalTraysCount = 0;
             Object.keys(cart).forEach(id => {
                 const p = PRODUCTS.find(prod => prod.id == id);
                 if (p) {
                     const sum = p.price * cart[id];
-                    totalPrice += sum;
+                    productsTotal += sum;
                     totalTraysCount += cart[id];
                     itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: cart[id], total: sum });
                 }
             });
+            
+            let discount = 0;
+            if (window.appliedPromo === 'GREEN10') {
+                discount = Math.floor(productsTotal * 0.10);
+                itemsArr.push({ product_id: 'promo', name: 'Скидка по промокоду', weight: '-', price: -discount, quantity: 1, total: -discount });
+            }
+            
+            let totalPrice = productsTotal - discount;
+            if (totalPrice < 0) totalPrice = 0;
+            
             if (dType.includes('Доставка') || dType.includes('курьер')) {
                 if (totalPrice >= 390) {
                     itemsArr.push({ product_id: 'delivery', name: 'Доставка (Бесплатно)', weight: '-', price: 0, quantity: 1, total: 0 });
@@ -774,7 +804,9 @@ function initEvents() {
                 delivery_type: dType,
                 address: address,
                 delivery_date: delDateCombined,
-                payment_method: payMethod
+                payment_method: payMethod,
+                is_subscription: isSubscription,
+                promo_code: window.appliedPromo || ''
             };
             const historyJSON = localStorage.getItem('micro_orders_history');
             let history = historyJSON ? JSON.parse(historyJSON) : [];
@@ -837,15 +869,25 @@ function initEvents() {
 }
 function updateModalSummary() {
     let summaryHTML = '<strong>Состав заказа:</strong><br>';
-    let total = 0;
+    let productsTotal = 0;
     Object.keys(cart).forEach(id => {
         const p = PRODUCTS.find(prod => prod.id == id);
         if (p) {
             const sum = p.price * cart[id];
-            total += sum;
+            productsTotal += sum;
             summaryHTML += `• ${p.name} x ${cart[id]} шт. = ${sum} ₽<br>`;
         }
     });
+    
+    let discount = 0;
+    if (window.appliedPromo === 'GREEN10') {
+        discount = Math.floor(productsTotal * 0.10);
+        summaryHTML += `• Скидка по промокоду (10%) = -${discount} ₽<br>`;
+    }
+    
+    let total = productsTotal - discount;
+    if (total < 0) total = 0;
+    
     const delType = document.getElementById('del-type')?.value || '';
     if (delType.includes('Доставка') || delType.includes('курьер')) {
         if (total >= 390) {

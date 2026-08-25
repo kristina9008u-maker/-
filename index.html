@@ -187,6 +187,14 @@
                         <option value="⚡ Онлайн-оплата">⚡ Онлайн-оплата в боте</option>
                     </select>
                 </div>
+                <div class="form-group checkbox-group" style="display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; margin-bottom: 5px; padding: 10px; background: var(--secondary-bg); border-radius: 12px;">
+                    <input type="checkbox" id="is-subscription" style="width: 20px; height: 20px; margin-top: 2px;">
+                    <label for="is-subscription" style="margin: 0; font-size: 14px; line-height: 1.4;">🔄 <b>Еженедельная подписка</b><br><span style="color:var(--hint-color); font-size: 12px;">Оформляйте каждый 7-й заказ бесплатно! Мы напомним вам через неделю.</span></label>
+                </div>
+                <div class="form-group promo-group" style="display: flex; gap: 8px; margin-bottom: 20px;">
+                    <input type="text" id="promo-code" placeholder="Промокод (если есть)" style="flex: 1; text-transform: uppercase;">
+                    <button type="button" id="btn-apply-promo" style="padding: 0 15px; border: none; border-radius: 12px; background: var(--secondary-bg); color: var(--primary-color); font-weight: bold; cursor: pointer;">Применить</button>
+                </div>
                 <div class="order-summary" id="modal-summary"></div>
                 <button type="submit" class="btn-success" id="btn-submit-order">🎉 Подтвердить и отправить заказ</button>
             </form>
