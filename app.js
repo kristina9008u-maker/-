@@ -818,7 +818,8 @@ function initEvents() {
                 order_info: {
                     status: "Ожидает оплату (в данный момент отключено)",
                     items: itemsArr,
-                    total_price: totalPrice,
+                    total_price: totalPrice
+                },
                 customer_name: name,
                 phone: phone,
                 delivery_type: dType,
