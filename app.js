@@ -657,6 +657,14 @@ function initEvents() {
     if (orderForm) {
         orderForm.onsubmit = (e) => {
             e.preventDefault();
+            
+            // Защита от двойного клика (двойных сообщений)
+            const btnSubmit = orderForm.querySelector('button[type="submit"]');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = "Отправка...";
+            }
+            
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
             if (phone.length < 18) {
@@ -770,10 +778,18 @@ function initEvents() {
                 } else {
                     alert("Ошибка при оформлении заказа: " + data.error);
                 }
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = "Подтвердить заказ";
+                }
             })
             .catch(error => {
                 console.error('Ошибка API:', error);
                 alert("Не удалось связаться с сервером. Проверьте подключение или обратитесь к менеджеру.");
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = "Подтвердить заказ";
+                }
                 // Открываем профиль, если сервер недоступен, чтобы юзер хотя бы увидел локальный заказ
                 initProfile();
                 window.openProfileView();
