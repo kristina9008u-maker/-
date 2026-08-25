@@ -862,7 +862,11 @@ function updateModalSummary() {
     if (tg && tg.MainButton) {
         tg.MainButton.text = `ОФОРМИТЬ НА ${total} ₽`;
         tg.MainButton.color = '#2e7d32';
-        tg.MainButton.show();
+        
+        const modalEl = document.getElementById('checkout-modal');
+        if (modalEl && !modalEl.classList.contains('hidden')) {
+            tg.MainButton.show();
+        }
     }
 }
 
@@ -904,10 +908,11 @@ function openCheckoutModal() {
     if (phoneInput) {
         phoneInput.value = savedPhone ? formatPhoneNumber(savedPhone) : '';
     }
-    updateModalSummary();
     
     const modalEl = document.getElementById('checkout-modal');
     if (modalEl) modalEl.classList.remove('hidden');
+    
+    updateModalSummary();
 }
 let userLoaded = false;
 function pollTelegramUser() {
