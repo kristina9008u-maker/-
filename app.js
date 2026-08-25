@@ -920,28 +920,7 @@ function triggerUpsellOrSubmit() {
         orderForm.reportValidity();
         return;
     }
-    // Если уже есть микс-срез (id: 6), не предлагаем
-    if (cart[6]) {
-        orderForm.requestSubmit();
-        return;
-    }
-    if (tg && tg.showPopup) {
-        tg.showPopup({
-            title: 'Витаминный заряд 🚀',
-            message: 'Добавьте Микс-срез "Витаминный" всего за 200₽ к этому заказу?',
-            buttons: [
-                {id: 'yes', text: 'Да, добавить!', type: 'default'},
-                {id: 'no', text: 'Нет, спасибо', type: 'cancel'}
-            ]
-        }, function(buttonId) {
-            if (buttonId === 'yes') {
-                updateQty(6, 1);
-            }
-            orderForm.requestSubmit();
-        });
-    } else {
-        orderForm.requestSubmit();
-    }
+    orderForm.requestSubmit();
 }
 
 function openCheckoutModal() {
