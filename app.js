@@ -814,8 +814,8 @@ function initEvents() {
             localStorage.setItem('micro_orders_count', currentOrdersCount);
             localStorage.setItem('micro_trays_count', currentTraysCount);
             
-            const data = {
-                order_info: {
+            const newOrder = {
+                  order_info: {
                     status: "Ожидает оплату (в данный момент отключено)",
                     items: itemsArr,
                     total_price: totalPrice
