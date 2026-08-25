@@ -188,7 +188,7 @@
                     </select>
                 </div>
                 <div class="form-group checkbox-group" style="display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; margin-bottom: 5px; padding: 10px; background: var(--secondary-bg); border-radius: 12px;">
-                    <input type="checkbox" id="is-subscription" style="width: 20px; height: 20px; margin-top: 2px;">
+                    <input type="checkbox" id="is-subscription" onchange="updateModalSummary()" style="width: 20px; height: 20px; margin-top: 2px;">
                     <label for="is-subscription" style="margin: 0; font-size: 14px; line-height: 1.4;">🔄 <b>Еженедельная подписка</b><br><span style="color:var(--hint-color); font-size: 12px;">Оформляйте каждый 7-й заказ бесплатно! Мы напомним вам через неделю.</span></label>
                 </div>
                 <div class="form-group promo-group" style="display: flex; gap: 8px; margin-bottom: 20px;">
@@ -201,6 +201,6 @@
         </div>
     </div>
     <!-- СБРОС КЭША С СЕРИЙНЫМ НОМЕРОМ v=20 -->
-    <script src="app.js?v=23"></script>
+    <script src="app.js?v=24"></script>
 </body>
 </html>

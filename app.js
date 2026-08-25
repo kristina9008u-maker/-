@@ -796,31 +796,29 @@ function initEvents() {
             let totalPrice = productsTotal - discount;
             if (totalPrice < 0) totalPrice = 0;
             
-            if (dType.includes('Доставка') || dType.includes('курьер')) {
+            if (dType.includes('Доставк') || dType.includes('Курьер')) {
                 if (totalPrice >= 390) {
-                    itemsArr.push({ product_id: 'delivery', name: 'Доставка (Бесплатно)', weight: '-', price: 0, quantity: 1, total: 0 });
+                    itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 0, quantity: 1, total: 0 });
                 } else {
                     totalPrice += 100;
                     itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 100, quantity: 1, total: 100 });
                 }
             }
             
-            if (tg && tg.MainButton) {
-                tg.MainButton.showProgress(true);
+            if (isSubscription) {
+                totalPrice = Math.round((totalPrice) * 4 * 0.9);
             }
+            
             const currentOrdersCount = parseInt(localStorage.getItem('micro_orders_count') || '0') + 1;
             const currentTraysCount = parseInt(localStorage.getItem('micro_trays_count') || '0') + totalTraysCount;
             localStorage.setItem('micro_orders_count', currentOrdersCount);
             localStorage.setItem('micro_trays_count', currentTraysCount);
-            const newOrderId = Math.floor(1000 + Math.random() * 9000);
-            const now = new Date();
-            const dateStr = `${now.getDate()} ${['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'][now.getMonth()]}, ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-            const newOrder = {
-                id: newOrderId,
-                date: dateStr,
-                status: "⚙️ Новый (ожидает подтверждения)",
-                items: itemsArr,
-                total_price: totalPrice,
+            
+            const data = {
+                order_info: {
+                    status: "Ожидает оплату (в данный момент отключено)",
+                    items: itemsArr,
+                    total_price: totalPrice,
                 customer_name: name,
                 phone: phone,
                 delivery_type: dType,
@@ -912,21 +910,33 @@ function updateModalSummary() {
     if (total < 0) total = 0;
     
     const delType = document.getElementById('del-type')?.value || '';
-    if (delType.includes('Доставка') || delType.includes('курьер')) {
+    let deliveryCost = 0;
+    if (delType.includes('Доставк') || delType.includes('Курьер')) {
         if (total >= 390) {
-            summaryHTML += `• Доставка (курьер) = 0 ₽ (БЕСПЛАТНО)<br>`;
+            summaryHTML += `➖ Доставка (курьер) = 0 ₽ (бесплатно)<br>`;
         } else {
-            total += 100;
-            summaryHTML += `• Доставка (курьер) = 100 ₽<br>`;
+            deliveryCost = 100;
+            summaryHTML += `➖ Доставка (курьер) = 100 ₽<br>`;
         }
     }
     
-    summaryHTML += `<br><strong>Итого к оплате: ${total} ₽</strong>`;
+    total += deliveryCost;
+    
+    // SUBSCRIPTION CALCULATION
+    const subCheck = document.getElementById('is-subscription');
+    if (subCheck && subCheck.checked) {
+        let oldTotal = total * 4;
+        total = Math.round(oldTotal * 0.9); // 10% discount
+        summaryHTML += `<br><strong>ИТОГО к оплате: <s>${oldTotal} ₽</s> <span style="color:#d32f2f;">${total} ₽</span></strong><br><small style="color:#666;">(Подписка на 4 недели, скидка 10%)</small>`;
+    } else {
+        summaryHTML += `<br><strong>ИТОГО к оплате: ${total} ₽</strong>`;
+    }
+    
     const summEl = document.getElementById('modal-summary');
     if (summEl) summEl.innerHTML = summaryHTML;
     
     if (tg && tg.MainButton) {
-        tg.MainButton.text = `ОФОРМИТЬ НА ${total} ₽`;
+        tg.MainButton.text = `Оплатить ${total} ₽`;
         tg.MainButton.color = '#2e7d32';
         
         const modalEl = document.getElementById('checkout-modal');
@@ -974,6 +984,8 @@ function pollTelegramUser() {
     }
 }
 function bootApp() {
+    const subCheck = document.getElementById("is-subscription");
+    if (subCheck) subCheck.addEventListener("change", updateModalSummary);
     if (tg) {
         try { tg.ready(); tg.expand(); } catch(e){}
     }
