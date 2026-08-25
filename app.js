@@ -2,7 +2,7 @@
 const tg = window.Telegram?.WebApp;
 
 // --- ГЛОБАЛЬНЫЙ СБРОС (ВАЙП) ДАННЫХ КЛИЕНТОВ ---
-const RESET_VERSION = "1.5"; // Смена версии приведет к полному сбросу у всех
+const RESET_VERSION = "3.0"; // Смена версии приведет к полному сбросу у всех
 if (localStorage.getItem('micro_reset_version') !== RESET_VERSION) {
     // Очищаем все данные приложения (история заказов, прогресс, сохраненные адреса)
     localStorage.removeItem('micro_orders_history');
@@ -736,10 +736,14 @@ function initEvents() {
             const rawDate = document.getElementById('del-date').value;
             const selectedTime = document.getElementById('del-time').value;
             let dateFormatted = rawDate;
+            let deliveryIso = null;
             if (rawDate && rawDate.includes('-')) {
                 const [y, m, d] = rawDate.split('-');
                 const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
                 dateFormatted = `${parseInt(d)} ${months[parseInt(m)-1]}`;
+                if (selectedTime) {
+                    deliveryIso = `${y}-${m}-${d}T${selectedTime}:00`;
+                }
             }
             const delDateCombined = `${dateFormatted}, ${selectedTime}`;
             const payMethod = document.getElementById('pay-method').value;
@@ -806,7 +810,8 @@ function initEvents() {
                 delivery_date: delDateCombined,
                 payment_method: payMethod,
                 is_subscription: isSubscription,
-                promo_code: window.appliedPromo || ''
+                promo_code: window.appliedPromo || '',
+                delivery_iso: deliveryIso
             };
             const historyJSON = localStorage.getItem('micro_orders_history');
             let history = historyJSON ? JSON.parse(historyJSON) : [];
