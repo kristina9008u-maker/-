@@ -664,8 +664,6 @@ function initEvents() {
     
     const btnCheckout1 = document.getElementById('btn-cart-checkout');
     if (btnCheckout1) {
-        // Прячем HTML-кнопку, если доступна MainButton
-        if (tg && tg.MainButton) btnCheckout1.style.display = 'none';
         btnCheckout1.onclick = openCheckoutModal;
     }
     const btnCloseModal = document.getElementById('btn-close-modal');
@@ -854,7 +852,7 @@ function updateModalSummary() {
     if (summEl) summEl.innerHTML = summaryHTML;
     
     if (tg && tg.MainButton) {
-        tg.MainButton.text = `ОПЛАТИТЬ ${total} ₽`;
+        tg.MainButton.text = `ОФОРМИТЬ НА ${total} ₽`;
         tg.MainButton.color = '#2e7d32';
         tg.MainButton.show();
     }
