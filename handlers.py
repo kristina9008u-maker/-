@@ -218,6 +218,22 @@ async def callback_admin_status(callback: CallbackQuery, bot: Bot):
             await callback.message.delete()
         except Exception:
             pass
+            
+        if order.get('is_subscription'):
+            stage = order.get('subscription_stage', 1)
+            if stage == 4:
+                try:
+                    await bot.send_message(
+                        chat_id=order['user_id'],
+                        text="🎉 <b>Ваш «Месяц свежести» подошел к концу!</b>
+
+Надеемся, вам было вкусно и полезно 🌿
+
+Оформите новую подписку в нашем меню, чтобы витамины всегда были у вас на столе!",
+                        parse_mode="HTML"
+                    )
+                except Exception as e:
+                    print(f"Failed to send sub end msg: {e}")
     else:
         try:
             updated_kb = kb.admin_order_keyboard(order_id, current_status=new_status)
