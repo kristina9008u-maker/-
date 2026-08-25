@@ -655,6 +655,7 @@ function initEvents() {
     // Глобальный обработчик MainButton
     if (tg && tg.MainButton) {
         tg.MainButton.onClick(() => {
+            if (document.activeElement) document.activeElement.blur();
             const modalEl = document.getElementById('checkout-modal');
             if (modalEl && !modalEl.classList.contains('hidden')) {
                 triggerUpsellOrSubmit();
@@ -911,6 +912,11 @@ function openCheckoutModal() {
     
     const modalEl = document.getElementById('checkout-modal');
     if (modalEl) modalEl.classList.remove('hidden');
+    
+    const btnSubmit = document.getElementById('btn-submit-order');
+    if (tg && tg.MainButton && btnSubmit) {
+        btnSubmit.style.display = 'none';
+    }
     
     updateModalSummary();
 }
