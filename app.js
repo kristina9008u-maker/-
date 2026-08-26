@@ -600,7 +600,7 @@ window.updateQty = function(id, qty) {
     if (p && p.category === 'instock') {
         const currentQty = cart[id] || 0;
         if (qty === p.stock_qty + 1 && currentQty === p.stock_qty) {
-            alert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`);
+            if(tg && tg.showAlert) { tg.showAlert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); } else { alert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); }
         }
     }
     
@@ -699,10 +699,10 @@ function initEvents() {
                 const code = codeInput.value.trim().toUpperCase();
                 if (code === 'GREEN10') {
                     window.appliedPromo = 'GREEN10';
-                    alert('✅ Промокод GREEN10 применен! Скидка 10% на все товары.');
+                    if(tg && tg.showAlert) { tg.showAlert('✅ Промокод GREEN10 применен! Скидка 10% на все товары.'); } else { alert('✅ Промокод GREEN10 применен! Скидка 10% на все товары.'); }
                     updateModalSummary();
                 } else if (code) {
-                    alert('❌ Неверный или просроченный промокод.');
+                    if(tg && tg.showAlert) { tg.showAlert('❌ Неверный или просроченный промокод.'); } else { alert('❌ Неверный или просроченный промокод.'); }
                 }
             }
         };
@@ -765,7 +765,7 @@ function initEvents() {
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
             if (phone.length < 18) {
-                alert('Пожалуйста, введите полный номер телефона в формате: +7 (965) 901-12-61');
+                if(tg && tg.showAlert) { tg.showAlert('Пожалуйста, введите полный номер телефона в формате: +7 (965) 901-12-61'); } else { alert('Пожалуйста, введите полный номер телефона в формате: +7 (965) 901-12-61'); }
                 return;
             }
             const dType = document.getElementById('del-type').value;
@@ -774,12 +774,12 @@ function initEvents() {
             const aptVal = (document.getElementById('cust-apt')?.value || '').trim();
             if (!dType.includes('Самовывоз')) {
                 if (!streetVal || streetVal.length < 2) {
-                    alert('⚠️ Введите название улицы');
+                    if(tg && tg.showAlert) { tg.showAlert('⚠️ Введите название улицы'); } else { alert('⚠️ Введите название улицы'); }
                     document.getElementById('cust-street')?.focus();
                     return;
                 }
                 if (!houseVal || !/\d/.test(houseVal)) {
-                    alert('⚠️ Введите номер дома');
+                    if(tg && tg.showAlert) { tg.showAlert('⚠️ Введите номер дома'); } else { alert('⚠️ Введите номер дома'); }
                     document.getElementById('cust-house')?.focus();
                     return;
                 }
@@ -943,10 +943,10 @@ function initEvents() {
                     if (tg && tg.close) {
                         tg.close();
                     } else {
-                        alert(`Заказ #${data.order_id} успешно оформлен!`);
+                        if(tg && tg.showAlert) { tg.showAlert(`Заказ #${data.order_id} успешно оформлен!`); } else { alert(`Заказ #${data.order_id} успешно оформлен!`); }
                     }
                 } else {
-                    alert("Ошибка при оформлении заказа: " + data.error);
+                    if(tg && tg.showAlert) { tg.showAlert("Ошибка при оформлении заказа: " + data.error); } else { alert("Ошибка при оформлении заказа: " + data.error); }
                 }
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
@@ -959,7 +959,7 @@ function initEvents() {
             })
             .catch(error => {
                 console.error('Ошибка API:', error);
-                alert("Не удалось связаться с сервером. Проверьте подключение или обратитесь к менеджеру.");
+                if(tg && tg.showAlert) { tg.showAlert("Не удалось связаться с сервером. Проверьте подключение или обратитесь к менеджеру."); } else { alert("Не удалось связаться с сервером. Проверьте подключение или обратитесь к менеджеру."); }
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Подтвердить заказ";
