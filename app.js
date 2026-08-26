@@ -350,15 +350,33 @@ function setupDatePicker() {
     const delDateInput = document.getElementById('del-date');
     const growthHintEl = document.getElementById('growth-hint');
     if (!delDateInput) return;
-    let maxMinDays = 1;
+    
+    let maxMinDays = 0;
     Object.keys(cart).forEach(id => {
+        const qty = cart[id] || 0;
         const p = PRODUCTS.find(prod => prod.id == id);
-        if (p && p.growth_min) {
-            if (p.growth_min > maxMinDays) {
-                maxMinDays = p.growth_min;
+        if (p) {
+            let actualGrowthMin = p.growth_min || 0;
+            
+            // Если это товар из наличия, но заказали БОЛЬШЕ чем есть
+            if (p.category === 'instock' && qty > p.stock_qty) {
+                const originalId = String(id).replace('stock_', '');
+                const originalP = PRODUCTS.find(prod => prod.id == originalId);
+                if (originalP && originalP.growth_min) {
+                    actualGrowthMin = originalP.growth_min;
+                }
+            } else if (p.category !== 'instock' && actualGrowthMin === 0 && p.id) {
+                 actualGrowthMin = p.growth_min || 1; // fallback
+            }
+            
+            if (actualGrowthMin > maxMinDays) {
+                maxMinDays = actualGrowthMin;
             }
         }
     });
+    
+    // Если все товары строго из наличия, даем возможность выбрать сегодня (maxMinDays = 0)
+    // Иначе берем срок роста самого долгого
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + maxMinDays);
     const yyyy = targetDate.getFullYear();
@@ -793,13 +811,41 @@ function initEvents() {
             let itemsArr = [];
             let productsTotal = 0;
             let totalTraysCount = 0;
+            let hasInstock = false;
+            let hasGrowing = false;
+            
             Object.keys(cart).forEach(id => {
+                const qty = cart[id];
                 const p = PRODUCTS.find(prod => prod.id == id);
                 if (p) {
-                    const sum = p.price * cart[id];
-                    productsTotal += sum;
-                    totalTraysCount += cart[id];
-                    itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: cart[id], total: sum });
+                    if (p.category === 'instock' && qty > p.stock_qty) {
+                        // Split into instock and growing
+                        hasInstock = true;
+                        hasGrowing = true;
+                        
+                        const sum1 = p.price * p.stock_qty;
+                        productsTotal += sum1;
+                        totalTraysCount += p.stock_qty;
+                        itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: p.stock_qty, total: sum1 });
+                        
+                        const extraQty = qty - p.stock_qty;
+                        const originalId = String(p.id).replace('stock_', '');
+                        const origP = PRODUCTS.find(prod => prod.id == originalId);
+                        if (origP) {
+                            const sum2 = origP.price * extraQty;
+                            productsTotal += sum2;
+                            totalTraysCount += extraQty;
+                            itemsArr.push({ product_id: origP.id, name: origP.name, weight: origP.weight, price: origP.price, quantity: extraQty, total: sum2 });
+                        }
+                    } else {
+                        if (p.category === 'instock') hasInstock = true;
+                        else hasGrowing = true;
+                        
+                        const sum = p.price * qty;
+                        productsTotal += sum;
+                        totalTraysCount += qty;
+                        itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: qty, total: sum });
+                    }
                 }
             });
             
