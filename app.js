@@ -530,7 +530,16 @@ function renderOrderHistory() {
             
             // Показываем реальный ID если есть, иначе локальный
             const displayId = order.real_id || order.id;
-            let itemsText = (order.items || []).map(i => `${i.name} x${i.quantity}`).join(', ');
+            let clientItemsMap = {};
+            (order.items || []).forEach(i => {
+                let cleanName = i.name.replace(' (УЖЕ ВЫРОСЛО)', '').replace(' (НА ДОСАДКУ)', '');
+                clientItemsMap[cleanName] = (clientItemsMap[cleanName] || 0) + i.quantity;
+            });
+            let itemsTextArr = [];
+            for (let name in clientItemsMap) {
+                itemsTextArr.push(`${name} x${clientItemsMap[name]}`);
+            }
+            let itemsText = itemsTextArr.join(', ');
             card.innerHTML = `
                 <div class="order-card-header">
                     <span class="order-id-title">Заказ #${displayId}</span>
