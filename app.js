@@ -533,21 +533,27 @@ function renderCatalog(category = 'all') {
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            const rangeStr = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}–${p.growth_max} дн.`;
+            let growthText = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}—${p.growth_max} дн.`;
+            if (p.category === 'instock') {
+                growthText = `🚀 Доступно сейчас (Остаток: ${p.stock_qty} шт.)`;
+            } else {
+                growthText = `🌱 Срок роста: ${growthText}`;
+            }
+            
             card.innerHTML = `
                 <img class="product-img" src="${p.img}" alt="${p.name}">
                 <h3 class="product-title">${p.name}</h3>
                 <p class="product-weight">${p.weight}</p>
-                <p class="product-growth">⏱ Срок роста: ${rangeStr}</p>
+                <p class="product-growth" ${p.category === 'instock' ? 'style="color:#d32f2f;font-weight:bold;font-size:12px;"' : ''}>${growthText}</p>
                 <p class="product-price">${p.price} ₽</p>
                 <div class="product-actions">
                     ${qty === 0 ? `
-                        <button class="btn-add" onclick="updateQty(${p.id}, 1)">+ Добавить</button>
+                        <button class="btn-add" onclick="updateQty('${p.id}', 1)">+ Добавить</button>
                     ` : `
                         <div class="qty-control">
-                            <button class="btn-qty" onclick="updateQty(${p.id}, ${qty - 1})">-</button>
+                            <button class="btn-qty" onclick="updateQty('${p.id}', ${qty - 1})">-</button>
                             <span class="qty-num">${qty} шт</span>
-                            <button class="btn-qty" onclick="updateQty(${p.id}, ${qty + 1})">+</button>
+                            <button class="btn-qty" onclick="updateQty('${p.id}', ${qty + 1})">+</button>
                         </div>
                     `}
                 </div>
@@ -562,6 +568,16 @@ window.updateQty = function(id, qty) {
     if (tg && tg.HapticFeedback) {
         tg.HapticFeedback.impactOccurred('light');
     }
+    
+    // Check stock limit for 'instock' items
+    const p = PRODUCTS.find(prod => prod.id == id);
+    if (p && p.category === 'instock') {
+        if (qty > p.stock_qty) {
+            alert('В наличии только ' + p.stock_qty + ' шт. Больше добавить нельзя!');
+            return;
+        }
+    }
+    
     if (qty <= 0) {
         delete cart[id];
     } else {
