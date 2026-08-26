@@ -535,7 +535,7 @@ function renderCatalog(category = 'all') {
             
             let growthText = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}—${p.growth_max} дн.`;
             if (p.category === 'instock') {
-                growthText = `🚀 Доступно сейчас (Остаток: ${p.stock_qty} шт.)`;
+                growthText = `🚀 Уже выросло (Остаток: ${p.stock_qty} шт.)`;
             } else {
                 growthText = `🌱 Срок роста: ${growthText}`;
             }
@@ -569,12 +569,11 @@ window.updateQty = function(id, qty) {
         tg.HapticFeedback.impactOccurred('light');
     }
     
-    // Check stock limit for 'instock' items
     const p = PRODUCTS.find(prod => prod.id == id);
     if (p && p.category === 'instock') {
-        if (qty > p.stock_qty) {
-            alert('В наличии только ' + p.stock_qty + ' шт. Больше добавить нельзя!');
-            return;
+        const currentQty = cart[id] || 0;
+        if (qty === p.stock_qty + 1 && currentQty === p.stock_qty) {
+            alert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`);
         }
     }
     
@@ -1013,7 +1012,7 @@ async function bootApp() {
                     PRODUCTS.unshift({
                         ...baseProd,
                         id: 'stock_' + baseProd.id,
-                        name: baseProd.name + ' (В НАЛИЧИИ)',
+                        name: baseProd.name + ' (УЖЕ ВЫРОСЛО)',
                         category: 'instock',
                         growth_min: 0,
                         growth_max: 0,
