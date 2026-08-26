@@ -314,6 +314,7 @@ window.closeCartView = function() {
     }
 };
 // Список товаров микрозелени с ВРЕМЕННЫМИ РАМКАМИ роста (growth_min и growth_max)
+let INVENTORY = {};
 const PRODUCTS = [
     {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
     {"id": 2, "category": "spicy_herbs", "name": "Мелиса \"Ароматный лимон\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
@@ -984,7 +985,29 @@ function pollTelegramUser() {
         initProfile();
     }
 }
-function bootApp() {
+async function bootApp() {
+    try {
+        const res = await fetch('https://microleaf-oe4o.onrender.com/api/inventory');
+        INVENTORY = await res.json();
+        Object.keys(INVENTORY).forEach(id => {
+            const qty = INVENTORY[id];
+            if (qty > 0) {
+                const baseProd = PRODUCTS.find(p => p.id == id);
+                if (baseProd) {
+                    PRODUCTS.unshift({
+                        ...baseProd,
+                        id: 'stock_' + baseProd.id,
+                        name: baseProd.name + ' (В НАЛИЧИИ)',
+                        category: 'instock',
+                        growth_min: 0,
+                        growth_max: 0,
+                        stock_qty: qty
+                    });
+                }
+            }
+        });
+    } catch(e) { console.error('Inventory fetch error:', e); }
+
     const subCheck = document.getElementById("is-subscription");
     if (subCheck) subCheck.addEventListener("change", updateModalSummary);
     if (tg) {
@@ -1001,7 +1024,7 @@ function bootApp() {
 }
 // Запуск приложения и принудительный рендер каталога
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootApp);
+    document.addEventListener('DOMContentLoaded', () => bootApp());
 } else {
     bootApp();
 }
