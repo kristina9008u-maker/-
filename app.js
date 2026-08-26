@@ -352,13 +352,16 @@ function setupDatePicker() {
     if (!delDateInput) return;
     
     let maxMinDays = 0;
+    let hasInstock = false;
+    let maxGrowingDays = 0;
+    
     Object.keys(cart).forEach(id => {
         const qty = cart[id] || 0;
         const p = PRODUCTS.find(prod => prod.id == id);
         if (p) {
-            let actualGrowthMin = p.growth_min || 0;
+            if (p.category === 'instock') hasInstock = true;
             
-            // Если это товар из наличия, но заказали БОЛЬШЕ чем есть
+            let actualGrowthMin = p.growth_min || 0;
             if (p.category === 'instock' && qty > p.stock_qty) {
                 const originalId = String(id).replace('stock_', '');
                 const originalP = PRODUCTS.find(prod => prod.id == originalId);
@@ -369,14 +372,20 @@ function setupDatePicker() {
                  actualGrowthMin = p.growth_min || 1; // fallback
             }
             
-            if (actualGrowthMin > maxMinDays) {
-                maxMinDays = actualGrowthMin;
+            if (actualGrowthMin > maxGrowingDays) {
+                maxGrowingDays = actualGrowthMin;
             }
         }
     });
     
-    // Если все товары строго из наличия, даем возможность выбрать сегодня (maxMinDays = 0)
-    // Иначе берем срок роста самого долгого
+    // Если в корзине есть ХОТЯ БЫ ОДИН товар из наличия, разрешаем выбрать сегодняшнюю дату (0 дней)!
+    if (hasInstock) {
+        maxMinDays = 0;
+    } else {
+        maxMinDays = maxGrowingDays;
+    }
+    
+    window.maxGrowingDaysForCheckout = maxGrowingDays; // Сохраняем для отправки заказа
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + maxMinDays);
     const yyyy = targetDate.getFullYear();
@@ -876,6 +885,20 @@ function initEvents() {
             localStorage.setItem('micro_orders_count', currentOrdersCount);
             localStorage.setItem('micro_trays_count', currentTraysCount);
             
+            
+            let finalDeliveryDate = delDateCombined;
+            if (hasInstock && hasGrowing) {
+                const growingDays = window.maxGrowingDaysForCheckout || 0;
+                const futureDate = new Date();
+                futureDate.setDate(futureDate.getDate() + growingDays);
+                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+                const futureStr = `${futureDate.getDate()} ${months[futureDate.getMonth()]}`;
+                
+                finalDeliveryDate = `📦 Товары из наличия: ${delDateCombined} (выбранная дата).\n⏳ Остальное (сверх наличия): к ${futureStr} (${growingDays} дн.)`;
+            } else if (hasInstock && !hasGrowing) {
+                finalDeliveryDate = `${delDateCombined} (Товары из наличия)`;
+            }
+
             const newOrder = {
                 id: currentOrdersCount,
                 date: new Date().toLocaleDateString('ru-RU'),
@@ -886,11 +909,11 @@ function initEvents() {
                 phone: phone,
                 delivery_type: dType,
                 address: address,
-                delivery_date: delDateCombined,
+                delivery_date: finalDeliveryDate,
                 payment_method: payMethod,
                 is_subscription: isSubscription,
                 promo_code: window.appliedPromo || '',
-                delivery_iso: deliveryIso
+                delivery_iso: deliveryDateISO
             };
             const historyJSON = localStorage.getItem('micro_orders_history');
             let history = historyJSON ? JSON.parse(historyJSON) : [];
