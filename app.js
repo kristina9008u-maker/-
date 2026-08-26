@@ -600,7 +600,7 @@ window.updateQty = function(id, qty) {
     if (p && p.category === 'instock') {
         const currentQty = cart[id] || 0;
         if (qty === p.stock_qty + 1 && currentQty === p.stock_qty) {
-            if(tg && tg.showAlert) { tg.showAlert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); } else { alert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); }
+//             if(tg && tg.showAlert) { tg.showAlert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); } else { alert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); }
         }
     }
     
@@ -670,9 +670,9 @@ function renderCartPage(totalItems, totalPrice) {
                     <p>${p.weight} • ⏱ ${rangeStr} • ${p.price} ₽</p>
                 </div>
                 <div class="qty-control" style="width: 100px;">
-                    <button class="btn-qty" onclick="updateQty(${p.id}, ${cart[id] - 1})">-</button>
+                    <button class="btn-qty" onclick="updateQty('${p.id}', ${cart[id] - 1})">-</button>
                     <span class="qty-num">${cart[id]} шт</span>
-                    <button class="btn-qty" onclick="updateQty(${p.id}, ${cart[id] + 1})">+</button>
+                    <button class="btn-qty" onclick="updateQty('${p.id}', ${cart[id] + 1})">+</button>
                 </div>
             `;
             container.appendChild(row);
@@ -844,7 +844,7 @@ function initEvents() {
                             const sum2 = origP.price * extraQty;
                             productsTotal += sum2;
                             totalTraysCount += extraQty;
-                            itemsArr.push({ product_id: origP.id, name: origP.name, weight: origP.weight, price: origP.price, quantity: extraQty, total: sum2 });
+                            itemsArr.push({ product_id: origP.id, name: origP.name + ' (НА ДОСАДКУ)', weight: origP.weight, price: origP.price, quantity: extraQty, total: sum2 });
                         }
                     } else {
                         if (p.category === 'instock') hasInstock = true;
@@ -913,7 +913,7 @@ function initEvents() {
                 payment_method: payMethod,
                 is_subscription: isSubscription,
                 promo_code: window.appliedPromo || '',
-                delivery_iso: deliveryDateISO
+                delivery_iso: typeof deliveryIso !== 'undefined' ? deliveryIso : ''
             };
             const historyJSON = localStorage.getItem('micro_orders_history');
             let history = historyJSON ? JSON.parse(historyJSON) : [];
@@ -994,6 +994,21 @@ function updateModalSummary() {
     
     let total = productsTotal - discount;
     if (total < 0) total = 0;
+    
+    // Проверка на превышение наличия
+    let hasOversell = false;
+    Object.keys(cart).forEach(id => {
+        const p = PRODUCTS.find(prod => prod.id == id);
+        if (p && p.category === 'instock' && cart[id] > p.stock_qty) {
+            hasOversell = true;
+        }
+    });
+    if (hasOversell) {
+        summaryHTML += `<br><div style="color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; font-size: 12px; line-height: 1.4;">
+        ⚠️ <b>Внимание:</b> Вы заказали часть товаров сверх их наличия. <br>
+        Всё, что есть в наличии, мы доставим сегодня. Разницу придётся подождать (отправим на выращивание).
+        </div><br>`;
+    }
     
     const delType = document.getElementById('del-type')?.value || '';
     let deliveryCost = 0;
