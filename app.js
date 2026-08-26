@@ -816,11 +816,11 @@ function initEvents() {
             localStorage.setItem('micro_trays_count', currentTraysCount);
             
             const newOrder = {
-                  order_info: {
-                    status: "Ожидает оплату (в данный момент отключено)",
-                    items: itemsArr,
-                    total_price: totalPrice
-                },
+                id: currentOrdersCount,
+                date: new Date().toLocaleDateString('ru-RU'),
+                status: "Новый",
+                items: itemsArr,
+                total_price: totalPrice,
                 customer_name: name,
                 phone: phone,
                 delivery_type: dType,
