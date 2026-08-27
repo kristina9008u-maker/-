@@ -801,6 +801,11 @@ function initEvents() {
                 if (aptVal) address += `, кв. ${aptVal}`;
             }
             
+            const commentVal = (document.getElementById('order-comment')?.value || '').trim();
+            if (commentVal) {
+                address += ` | Комментарий: ${commentVal}`;
+            }
+            
             const rawDate = document.getElementById('del-date').value;
             const selectedTime = document.getElementById('del-time').value;
             let dateFormatted = rawDate;
@@ -986,13 +991,24 @@ function initEvents() {
 function updateModalSummary() {
     let summaryHTML = '<strong>Состав заказа:</strong><br>';
     let productsTotal = 0;
+    let cartGroups = {};
     Object.keys(cart).forEach(id => {
         const p = PRODUCTS.find(prod => prod.id == id);
         if (p) {
+            let cleanName = p.name.replace(' (УЖЕ ВЫРОСЛО)', '').replace(' (НА ДОСАДКУ)', '');
             const sum = p.price * cart[id];
             productsTotal += sum;
-            summaryHTML += `• ${p.name} x ${cart[id]} шт. = ${sum} ₽<br>`;
+            if (!cartGroups[cleanName]) {
+                cartGroups[cleanName] = { qty: 0, sum: 0 };
+            }
+            cartGroups[cleanName].qty += cart[id];
+            cartGroups[cleanName].sum += sum;
         }
+    });
+
+    Object.keys(cartGroups).forEach(name => {
+        const g = cartGroups[name];
+        summaryHTML += `• ${name} x ${g.qty} шт. = ${g.sum} ₽<br>`;
     });
     
     let discount = 0;

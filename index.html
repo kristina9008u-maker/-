@@ -196,6 +196,10 @@
                     <input type="text" id="promo-code" placeholder="Промокод (если есть)" style="flex: 1; text-transform: uppercase;">
                     <button type="button" id="btn-apply-promo" style="padding: 0 15px; border: none; border-radius: 12px; background: var(--secondary-bg); color: var(--primary-color); font-weight: bold; cursor: pointer;">Применить</button>
                 </div>
+                <div class="form-group">
+                    <label>📝 Комментарий к заказу (если есть):</label>
+                    <textarea id="order-comment" placeholder="Ваши пожелания, детали доставки или другая информация..." style="width: 100%; min-height: 60px; padding: 12px; border-radius: 12px; border: 1px solid var(--hint-color); background: var(--secondary-bg); color: var(--text-color); font-family: inherit; resize: vertical; box-sizing: border-box; margin-bottom: 20px;"></textarea>
+                </div>
                 <div class="order-summary" id="modal-summary"></div>
                 <button type="submit" class="btn-success" id="btn-submit-order">🎉 Подтвердить и отправить заказ</button>
             </form>
