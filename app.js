@@ -1062,7 +1062,7 @@ function updateModalSummary() {
     if (summEl) summEl.innerHTML = summaryHTML;
     
     if (tg && tg.MainButton) {
-        tg.MainButton.text = `Оплатить ${total} ₽`;
+        tg.MainButton.text = `Сделать заказ на ${total} ₽`;
         tg.MainButton.color = '#2e7d32';
         
         const modalEl = document.getElementById('checkout-modal');
