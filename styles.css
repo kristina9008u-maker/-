@@ -839,7 +839,8 @@ body {
 .pm-gallery-container .product-img-slide {
     height: 100%;
     border-radius: 0;
-    object-fit: cover;
+    object-fit: contain;
+    background-color: #000;
 }
 .pm-info-sheet {
     flex: 1;
