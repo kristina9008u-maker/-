@@ -315,31 +315,36 @@ window.closeCartView = function() {
 };
 // Список товаров микрозелени с ВРЕМЕННЫМИ РАМКАМИ роста (growth_min и growth_max)
 let INVENTORY = {};
+const demoImages = [
+    "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
+    "https://images.unsplash.com/photo-1515589654513-3331002ec7bc?w=400&q=80",
+    "https://images.unsplash.com/photo-1574316071802-0d684efa7ab5?w=400&q=80"
+];
 const PRODUCTS = [
-    {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 2, "category": "spicy_herbs", "name": "Мелиса \"Ароматный лимон\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 3, "category": "spicy_herbs", "name": "Мелиса \"Турецкая\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 4, "category": "spicy_herbs", "name": "Базилик \"Зеленый - генуэзский\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 5, "category": "spicy_herbs", "name": "Базилик \"Маргарет\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 6, "category": "spicy_herbs", "name": "Базилик \"Итальянский лимонный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 7, "category": "spicy_herbs", "name": "Базилик \"Красный рубин\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 8, "category": "spicy_herbs", "name": "Кинза", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 25, "growth_max": 30, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 9, "category": "spicy_herbs", "name": "Руккола", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 10, "category": "salads", "name": "Салат \"Вишневая дымка - мини\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 11, "category": "salads", "name": "Салат \"Американский коричневый кудрявый\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 12, "category": "salads", "name": "Капуста \"Мизуна\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 13, "category": "salads", "name": "Кресс - салат \"Кучерявый\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 14, "category": "salads", "name": "Кресс - салат \"Крупнолистовой\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 15, "category": "salads", "name": "Брокколи", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 16, "category": "salads", "name": "Кольраби \"Фиолетово - пурпурный\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 17, "category": "salads", "name": "Горчица красная \"Рэд леон\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 18, "category": "salads", "name": "Горчица салатная \"Веснушка\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 19, "category": "classic", "name": "Редис \"Санго\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 20, "category": "classic", "name": "Редис \"Ред коралл\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 21, "category": "classic", "name": "Амарант \"Пэшн\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 22, "category": "classic", "name": "Амарант \"Легенда\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 23, "category": "classic", "name": "Горох \"Элита\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
-    {"id": 24, "category": "classic", "name": "Подсолнечник", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80"},
+    {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 2, "category": "spicy_herbs", "name": "Мелиса \"Ароматный лимон\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 3, "category": "spicy_herbs", "name": "Мелиса \"Турецкая\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 4, "category": "spicy_herbs", "name": "Базилик \"Зеленый - генуэзский\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 5, "category": "spicy_herbs", "name": "Базилик \"Маргарет\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 6, "category": "spicy_herbs", "name": "Базилик \"Итальянский лимонный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 7, "category": "spicy_herbs", "name": "Базилик \"Красный рубин\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
+    {"id": 8, "category": "spicy_herbs", "name": "Кинза", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 25, "growth_max": 30, "img": demoImages[0], "images": demoImages},
+    {"id": 9, "category": "spicy_herbs", "name": "Руккола", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 10, "category": "salads", "name": "Салат \"Вишневая дымка - мини\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 11, "category": "salads", "name": "Салат \"Американский коричневый кудрявый\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 12, "category": "salads", "name": "Капуста \"Мизуна\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
+    {"id": 13, "category": "salads", "name": "Кресс - салат \"Кучерявый\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 14, "category": "salads", "name": "Кресс - салат \"Крупнолистовой\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 15, "category": "salads", "name": "Брокколи", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 16, "category": "salads", "name": "Кольраби \"Фиолетово - пурпурный\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 17, "category": "salads", "name": "Горчица красная \"Рэд леон\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
+    {"id": 18, "category": "salads", "name": "Горчица салатная \"Веснушка\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
+    {"id": 19, "category": "classic", "name": "Редис \"Санго\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 20, "category": "classic", "name": "Редис \"Ред коралл\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 21, "category": "classic", "name": "Амарант \"Пэшн\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 22, "category": "classic", "name": "Амарант \"Легенда\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 23, "category": "classic", "name": "Горох \"Элита\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": demoImages[0], "images": demoImages},
+    {"id": 24, "category": "classic", "name": "Подсолнечник", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": demoImages[0], "images": demoImages},
 ];
 let cart = {};
 let currentCategory = 'all';
@@ -576,8 +581,21 @@ function renderCatalog(category = 'all') {
                 growthText = `🌱 Срок роста: ${growthText}`;
             }
             
+            let imagesHtml = '';
+            let dotsHtml = '';
+            const images = p.images || [p.img];
+            images.forEach((imgUrl, idx) => {
+                imagesHtml += `<img class="product-img-slide" src="${imgUrl}" alt="${p.name}">`;
+                dotsHtml += `<div class="gallery-dot ${idx === 0 ? 'active' : ''}"></div>`;
+            });
+            
             card.innerHTML = `
-                <img class="product-img" src="${p.img}" alt="${p.name}">
+                <div class="product-gallery-container">
+                    <div class="product-gallery" id="gallery-${p.id}" onscroll="updateGalleryDots('${p.id}')">
+                        ${imagesHtml}
+                    </div>
+                    ${images.length > 1 ? `<div class="gallery-dots" id="dots-${p.id}">${dotsHtml}</div>` : ''}
+                </div>
                 <h3 class="product-title">${p.name}</h3>
                 <p class="product-weight">${p.weight}</p>
                 <p class="product-growth" ${p.category === 'instock' ? 'style="color:#d32f2f;font-weight:bold;font-size:12px;"' : ''}>${growthText}</p>
@@ -621,6 +639,26 @@ window.updateQty = function(id, qty) {
     updateCartUI();
     const activeCat = document.querySelector('.cat-btn.active')?.dataset.category || 'all';
     renderCatalog(activeCat);
+};
+window.updateGalleryDots = function(id) {
+    const gallery = document.getElementById(`gallery-${id}`);
+    const dotsContainer = document.getElementById(`dots-${id}`);
+    if (!gallery || !dotsContainer) return;
+    
+    // Calculate the index of the currently visible image
+    const scrollLeft = gallery.scrollLeft;
+    const width = gallery.clientWidth;
+    const index = Math.round(scrollLeft / width);
+    
+    // Update dots
+    const dots = dotsContainer.children;
+    for (let i = 0; i < dots.length; i++) {
+        if (i === index) {
+            dots[i].classList.add('active');
+        } else {
+            dots[i].classList.remove('active');
+        }
+    }
 };
 function updateCartUI() {
     let totalItems = 0;
