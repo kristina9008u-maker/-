@@ -6,7 +6,7 @@
     <title>Зелёный Урожай — Сити-ферма микрозелени</title>
     <!-- Telegram WebApp JS SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="styles.css?v=22">
+    <link rel="stylesheet" href="styles.css?v=23">
 </head>
 <body>
     <div id="app">
@@ -207,8 +207,10 @@
     </div>
     <!-- МОДАЛЬНОЕ ОКНО ТОВАРА -->
     <div class="full-view-overlay hidden" id="product-modal" style="display: none; z-index: 10000; background: var(--bg-color);">
-        <div class="pm-header-floating">
-            <button class="btn-close-floating" onclick="closeProductModal()">✕</button>
+        <div class="pm-header-floating" style="position: absolute; top: 16px; left: 16px; right: auto; z-index: 100;">
+            <button class="btn-back-floating" onclick="closeProductModal()">
+                <span style="font-size: 20px; line-height: 1;">‹</span> Назад
+            </button>
         </div>
         
         <div class="product-gallery-container pm-gallery-container">
