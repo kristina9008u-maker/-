@@ -606,3 +606,63 @@ body {
 .rank-master { background-color: #fff9c4; color: #f57f17; }
 .rank-legend { background-color: #fff3e0; color: #e65100; }
 .rank-emperor { background-color: #fce4ec; color: #ad1457; }
+
+/* Стили для полноэкранного модального окна товара */
+#product-modal {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.pm-header-floating {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+}
+.btn-close-floating {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+.pm-gallery-container {
+    width: 100%;
+    height: 45vh; /* 45% высоты экрана */
+    border-radius: 0;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+.pm-gallery-container .product-img-slide {
+    height: 100%; /* Переопределяем 105px из карточки */
+    border-radius: 0;
+    object-fit: cover;
+}
+.pm-info-sheet {
+    flex: 1;
+    background: var(--card-bg);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 24px 20px;
+    margin-top: -20px; /* Наезжает на картинку */
+    z-index: 10;
+    position: relative;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+.pm-bottom-bar {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+}
