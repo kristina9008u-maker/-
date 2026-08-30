@@ -845,8 +845,7 @@ body {
     height: 100%;
     width: 100%;
     border-radius: 0;
-    object-fit: contain !important;
-    background-color: #000;
+    object-fit: cover !important;
 }
 .pm-info-sheet {
     flex: 1;
