@@ -1220,7 +1220,7 @@ window.openProductModal = function(id) {
     let dotsHtml = '';
     const images = p.images || [p.img];
     images.forEach((imgUrl, idx) => {
-        imagesHtml += `<img class="product-img-slide" src="${imgUrl}" alt="${p.name}">`;
+        imagesHtml += `<img class="product-img-slide" style="width: 100%; height: 100%; object-fit: contain !important; background: #000; border-radius: 0;" src="${imgUrl}" alt="${p.name}">`;
         dotsHtml += `<div class="gallery-dot ${idx === 0 ? 'active' : ''}"></div>`;
     });
     
