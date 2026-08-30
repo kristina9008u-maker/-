@@ -590,16 +590,18 @@ function renderCatalog(category = 'all') {
             });
             
             card.innerHTML = `
-                <div class="product-gallery-container">
-                    <div class="product-gallery" id="gallery-${p.id}" onscroll="updateGalleryDots('${p.id}')">
-                        ${imagesHtml}
+                <div class="product-clickable-area" onclick="openProductModal('${p.id}')" style="cursor: pointer;">
+                    <div class="product-gallery-container">
+                        <div class="product-gallery" id="gallery-${p.id}" onscroll="updateGalleryDots('${p.id}')">
+                            ${imagesHtml}
+                        </div>
+                        ${images.length > 1 ? `<div class="gallery-dots" id="dots-${p.id}">${dotsHtml}</div>` : ''}
                     </div>
-                    ${images.length > 1 ? `<div class="gallery-dots" id="dots-${p.id}">${dotsHtml}</div>` : ''}
+                    <h3 class="product-title">${p.name}</h3>
+                    <p class="product-weight">${p.weight}</p>
+                    <p class="product-growth" ${p.category === 'instock' ? 'style="color:#d32f2f;font-weight:bold;font-size:12px;"' : ''}>${growthText}</p>
+                    <p class="product-price">${p.price} ₽</p>
                 </div>
-                <h3 class="product-title">${p.name}</h3>
-                <p class="product-weight">${p.weight}</p>
-                <p class="product-growth" ${p.category === 'instock' ? 'style="color:#d32f2f;font-weight:bold;font-size:12px;"' : ''}>${growthText}</p>
-                <p class="product-price">${p.price} ₽</p>
                 <div class="product-actions">
                     ${qty === 0 ? `
                         <button class="btn-add" onclick="updateQty('${p.id}', 1)">+ Добавить</button>
@@ -1190,6 +1192,91 @@ if (document.readyState === 'loading') {
 } else {
     bootApp();
 }
+let currentProductInModal = null;
+
+window.openProductModal = function(id) {
+    const p = PRODUCTS.find(prod => prod.id == id);
+    if (!p) return;
+    currentProductInModal = p;
+    
+    document.getElementById('pm-title').innerText = p.name;
+    document.getElementById('pm-weight').innerText = p.weight;
+    
+    let growthText = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}—${p.growth_max} дн.`;
+    if (p.category === 'instock') {
+        growthText = `🚀 Уже выросло (Остаток: ${p.stock_qty} шт.)`;
+        document.getElementById('pm-growth').style.color = '#d32f2f';
+        document.getElementById('pm-growth').style.fontWeight = 'bold';
+    } else {
+        growthText = `🌱 Срок роста: ${growthText}`;
+        document.getElementById('pm-growth').style.color = '';
+        document.getElementById('pm-growth').style.fontWeight = 'normal';
+    }
+    document.getElementById('pm-growth').innerText = growthText;
+    document.getElementById('pm-price').innerText = `${p.price} ₽`;
+    document.getElementById('pm-desc').innerText = p.description || "Свежая, хрустящая микрозелень прямо с нашей сити-фермы. Отлично подходит для салатов, бутербродов и украшения блюд.";
+    
+    let imagesHtml = '';
+    let dotsHtml = '';
+    const images = p.images || [p.img];
+    images.forEach((imgUrl, idx) => {
+        imagesHtml += `<img class="product-img-slide" src="${imgUrl}" alt="${p.name}">`;
+        dotsHtml += `<div class="gallery-dot ${idx === 0 ? 'active' : ''}"></div>`;
+    });
+    
+    document.getElementById('pm-gallery').innerHTML = imagesHtml;
+    document.getElementById('pm-dots').innerHTML = images.length > 1 ? dotsHtml : '';
+    
+    updatePmActions();
+    
+    document.getElementById('product-modal').style.display = 'flex';
+    document.getElementById('product-modal').classList.remove('hidden');
+    document.getElementById('pm-gallery').scrollLeft = 0;
+};
+
+window.closeProductModal = function() {
+    document.getElementById('product-modal').style.display = 'none';
+    document.getElementById('product-modal').classList.add('hidden');
+    currentProductInModal = null;
+};
+
+window.updatePmGalleryDots = function() {
+    const gallery = document.getElementById('pm-gallery');
+    const dotsContainer = document.getElementById('pm-dots');
+    if (!gallery || !dotsContainer) return;
+    
+    const scrollLeft = gallery.scrollLeft;
+    const width = gallery.clientWidth;
+    const index = Math.round(scrollLeft / width);
+    
+    const dots = dotsContainer.children;
+    for (let i = 0; i < dots.length; i++) {
+        if (i === index) {
+            dots[i].classList.add('active');
+        } else {
+            dots[i].classList.remove('active');
+        }
+    }
+};
+
+window.updatePmActions = function() {
+    if (!currentProductInModal) return;
+    const qty = cart[currentProductInModal.id] || 0;
+    const actionsDiv = document.getElementById('pm-actions');
+    
+    if (qty === 0) {
+        actionsDiv.innerHTML = `<button class="btn-add pm-add-btn" onclick="updateQty('${currentProductInModal.id}', 1); updatePmActions();" style="padding: 10px 20px; font-size: 16px;">+ Добавить</button>`;
+    } else {
+        actionsDiv.innerHTML = `
+            <div class="qty-control" style="background:var(--bg-color); transform: scale(1.1); transform-origin: right center;">
+                <button class="btn-qty" onclick="updateQty('${currentProductInModal.id}', ${qty - 1}); updatePmActions();">-</button>
+                <span class="qty-num">${qty} шт</span>
+                <button class="btn-qty" onclick="updateQty('${currentProductInModal.id}', ${qty + 1}); updatePmActions();">+</button>
+            </div>
+        `;
+    }
+};
+
 // Запасной вызов рендера каталога для 100% гарантированного отображения
 window.addEventListener('load', () => {
     try { renderCatalog('all'); } catch(e){}
