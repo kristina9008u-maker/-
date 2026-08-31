@@ -341,8 +341,8 @@ const PRODUCTS = [
     {"id": 18, "category": "salads", "name": "Горчица салатная \"Веснушка\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
     {"id": 19, "category": "classic", "name": "Редис \"Санго\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/sango1.jpg", "images": ["Images/sango1.jpg", "Images/sango2.jpg"]},
     {"id": 20, "category": "classic", "name": "Редис \"Ред коралл\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/koral1.jpg", "images": ["Images/koral1.jpg", "Images/koral2.jpg", "Images/koral3.jpg"]},
-    {"id": 21, "category": "classic", "name": "Амарант \"Пэшн\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "Images/amarant1.jpg", "images": ["Images/amarant1.jpg", "Images/amarant2.jpg"]},
-    {"id": 22, "category": "classic", "name": "Амарант \"Легенда\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 21, "category": "classic", "name": "Амарант \"Пэшн\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 22, "category": "classic", "name": "Амарант \"Легенда\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/amarant1.jpg", "images": ["Images/amarant1.jpg", "Images/amarant2.jpg"]},
     {"id": 23, "category": "classic", "name": "Горох \"Элита\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "Images/gor1.jpg", "images": ["Images/gor1.jpg", "Images/gor2.jpg", "Images/gor3.jpg"]},
     {"id": 24, "category": "classic", "name": "Подсолнечник", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "Images/Pod1.jpg", "images": ["Images/Pod1.jpg", "Images/Pod2.jpg", "Images/Pod3.jpg", "Images/Pod4.jpg"]},
 ];
