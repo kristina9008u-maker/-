@@ -321,7 +321,7 @@ const demoImages = [
     "https://images.unsplash.com/photo-1574316071802-0d684efa7ab5?w=400&q=80"
 ];
 const PRODUCTS = [
-    {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": 'images/zhavel1.jpg', 'images/zhavel2.jpg'},
     {"id": 2, "category": "spicy_herbs", "name": "Мелиса \"Ароматный лимон\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
     {"id": 3, "category": "spicy_herbs", "name": "Мелиса \"Турецкая\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
     {"id": 4, "category": "spicy_herbs", "name": "Базилик \"Зеленый - генуэзский\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
