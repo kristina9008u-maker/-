@@ -408,35 +408,27 @@ function setupDatePicker() {
         growthHintEl.innerHTML = `🌱 Минимальный срок выращивания заказа: <strong>${maxMinDays} дн.</strong><br>Ближайшая возможная дата готовности: <strong>${formattedMinDate}</strong>`;
     }
 }
-// Инициализация Профиля из Telegram WebApp
-function initProfile() {
+async function initProfile() {
     try {
-        const avatarEl = document.getElementById('user-avatar');
-        const topAvatarEl = document.getElementById('top-avatar-img');
         const nameEl = document.getElementById('user-full-name');
         const usernameEl = document.getElementById('user-username');
+        const avatarEl = document.getElementById('user-avatar');
+        const topAvatarEl = document.getElementById('top-avatar-img');
         const phoneEl = document.getElementById('saved-phone');
         const addressEl = document.getElementById('saved-address');
+        
         let fullName = '';
         let userHandle = '';
         let avatarSrc = '';
-        const u = getTelegramUser();
-        const customName = localStorage.getItem('micro_user_name');
-        if (customName) {
-            fullName = customName;
-        }
-        if (u) {
-            const fname = (u.first_name || '').trim();
-            const lname = (u.last_name || '').trim();
-            
-            if (!customName) {
-                if (fname || lname) {
-                    fullName = `${fname} ${lname}`.trim();
-                } else if (u.username) {
-                    fullName = u.username;
-                } else if (u.id) {
-                    fullName = `Пользователь #${u.id}`;
-                }
+        let userId = null;
+        
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const u = tg.initDataUnsafe.user;
+            userId = u.id;
+            if (u.first_name || u.last_name) {
+                fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
+            } else {
+                fullName = 'Покупатель';
             }
             if (u.username) {
                 userHandle = u.username.startsWith('@') ? u.username : `@${u.username}`;
@@ -445,45 +437,32 @@ function initProfile() {
             } else {
                 userHandle = '@telegram_user';
             }
-            // Фото профиля: из Telegram SDK → из URL параметра → из localStorage → генерируем
             if (u.photo_url) {
                 avatarSrc = u.photo_url;
                 localStorage.setItem('micro_photo_url', u.photo_url);
             } else {
                 const savedPhoto = localStorage.getItem('micro_photo_url');
-                if (savedPhoto) {
-                    avatarSrc = savedPhoto;
-                } else {
-                    avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'User')}&background=2e7d32&color=fff&size=200&font-size=0.4`;
-                }
+                avatarSrc = savedPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'User')}&background=2e7d32&color=fff&size=200&font-size=0.4`;
             }
         } else {
-            fullName = fullName || 'Покупатель';
+            fullName = 'Покупатель';
             userHandle = '@telegram_user';
             const savedPhoto = localStorage.getItem('micro_photo_url');
-            if (savedPhoto) {
-                avatarSrc = savedPhoto;
-            } else {
-                avatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200`;
-            }
+            avatarSrc = savedPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2e7d32&color=fff&size=200`;
         }
+        
         if (nameEl) nameEl.textContent = fullName;
         if (usernameEl) usernameEl.textContent = userHandle;
         if (avatarEl) avatarEl.src = avatarSrc;
         if (topAvatarEl) topAvatarEl.src = avatarSrc;
+        
         const custNameInput = document.getElementById('cust-name');
         if (custNameInput && fullName !== 'Покупатель') {
             custNameInput.value = fullName;
         }
+        
         const savedPhone = localStorage.getItem('micro_phone');
         const savedAddress = localStorage.getItem('micro_address');
-        const ordersCount = parseInt(localStorage.getItem('micro_orders_count') || '0');
-        const traysCount = localStorage.getItem('micro_trays_count') || '0';
-        if (savedPhone && phoneEl) {
-            phoneEl.textContent = savedPhone;
-        }
-        if (savedAddress && addressEl) {
-            addressEl.textContent = savedAddress;
         }
         // Восстанавливаем раздельные поля адреса
         const savedStreet = localStorage.getItem('micro_street');
@@ -495,6 +474,22 @@ function initProfile() {
         if (savedStreet && streetInput) streetInput.value = savedStreet;
         if (savedHouse && houseInput) houseInput.value = savedHouse;
         if (savedApt && aptInput) aptInput.value = savedApt;
+        // Fetch real stats from server
+        if (userId) {
+            try {
+                const resp = await fetch(`/api/profile?user_id=${userId}`);
+                const data = await resp.json();
+                if (data.success) {
+                    localStorage.setItem('micro_orders_count', data.data.orders_count);
+                    localStorage.setItem('micro_orders_history', JSON.stringify(data.data.recent_orders.reverse()));
+                }
+            } catch (e) {
+                console.error("Failed to fetch profile from server", e);
+            }
+        }
+        
+        const ordersCount = parseInt(localStorage.getItem('micro_orders_count') || '0');
+        const traysCount = localStorage.getItem('micro_trays_count') || '0';
         
         const statOrd = document.getElementById('stat-orders-count');
         if (statOrd) statOrd.textContent = ordersCount;
@@ -562,17 +557,55 @@ function renderOrderHistory() {
         console.error('Order history error:', err);
     }
 }
+function handleSearch() {
+    renderCatalog(document.querySelector('.cat-btn.active').dataset.category);
+}
+
+function toggleFavorite(event, productId) {
+    event.stopPropagation();
+    let favs = JSON.parse(localStorage.getItem('micro_favorites') || '[]');
+    if (favs.includes(productId)) {
+        favs = favs.filter(id => id !== productId);
+    } else {
+        favs.push(productId);
+    }
+    localStorage.setItem('micro_favorites', JSON.stringify(favs));
+    renderCatalog(document.querySelector('.cat-btn.active').dataset.category);
+}
+
 function renderCatalog(category = 'all') {
     try {
         const catalogContainer = document.getElementById('catalog-container');
         if (!catalogContainer) return;
         catalogContainer.innerHTML = '';
         
-        const filtered = category === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === category);
+        const searchQuery = (document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : '');
+        const favs = JSON.parse(localStorage.getItem('micro_favorites') || '[]');
+        
+        let filtered = PRODUCTS;
+        if (category === 'favorites') {
+            filtered = filtered.filter(p => favs.includes(p.id));
+        } else if (category !== 'all') {
+            filtered = filtered.filter(p => p.category === category);
+        }
+        
+        if (searchQuery) {
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery));
+        }
+        
+        if (filtered.length === 0) {
+            catalogContainer.innerHTML = '<p style="text-align: center; color: var(--hint-color); padding: 20px; grid-column: 1/-1;">Ничего не найдено 😔</p>';
+            return;
+        }
+        
         filtered.forEach(p => {
             const qty = cart[p.id] || 0;
             const card = document.createElement('div');
             card.className = 'product-card';
+            card.style.position = 'relative';
+            
+            const isFav = favs.includes(p.id);
+            const favIcon = isFav ? '❤️' : '🤍';
             
             let growthText = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}—${p.growth_max} дн.`;
             if (p.category === 'instock') {
@@ -590,6 +623,7 @@ function renderCatalog(category = 'all') {
             });
             
             card.innerHTML = `
+                <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${p.id}')">${favIcon}</button>
                 <div class="product-clickable-area" onclick="openProductModal('${p.id}')" style="cursor: pointer;">
                     <div class="product-gallery-container">
                         <div class="product-gallery" id="gallery-${p.id}" onscroll="updateGalleryDots('${p.id}')">
@@ -742,16 +776,32 @@ function initEvents() {
     }
     const btnPromo = document.getElementById('btn-apply-promo');
     if (btnPromo) {
-        btnPromo.onclick = () => {
+        btnPromo.onclick = async () => {
             const codeInput = document.getElementById('promo-code');
             if (codeInput) {
                 const code = codeInput.value.trim().toUpperCase();
-                if (code === 'GREEN10') {
-                    window.appliedPromo = 'GREEN10';
-                    if(tg && tg.showAlert) { tg.showAlert('✅ Промокод GREEN10 применен! Скидка 10% на все товары.'); } else { alert('✅ Промокод GREEN10 применен! Скидка 10% на все товары.'); }
-                    updateModalSummary();
-                } else if (code) {
-                    if(tg && tg.showAlert) { tg.showAlert('❌ Неверный или просроченный промокод.'); } else { alert('❌ Неверный или просроченный промокод.'); }
+                if (!code) return;
+                
+                try {
+                    btnPromo.disabled = true;
+                    const response = await fetch(`/api/check_promo?code=${encodeURIComponent(code)}`);
+                    const result = await response.json();
+                    
+                    if (result.valid) {
+                        window.appliedPromo = code;
+                        window.appliedPromoDiscount = result.discount;
+                        if(tg && tg.showAlert) { tg.showAlert(`✅ Промокод ${code} применен! Скидка ${result.discount}% на все товары.`); } else { alert(`✅ Промокод ${code} применен! Скидка ${result.discount}% на все товары.`); }
+                        updateModalSummary();
+                    } else {
+                        if(tg && tg.showAlert) { tg.showAlert(`❌ ${result.error || 'Неверный промокод'}`); } else { alert(`❌ ${result.error || 'Неверный промокод'}`); }
+                        window.appliedPromo = '';
+                        window.appliedPromoDiscount = 0;
+                        updateModalSummary();
+                    }
+                } catch (e) {
+                    if(tg && tg.showAlert) { tg.showAlert('❌ Ошибка проверки промокода. Проверьте интернет.'); } else { alert('❌ Ошибка проверки промокода.'); }
+                } finally {
+                    btnPromo.disabled = false;
                 }
             }
         };
@@ -1052,9 +1102,9 @@ function updateModalSummary() {
     });
     
     let discount = 0;
-    if (window.appliedPromo === 'GREEN10') {
-        discount = Math.floor(productsTotal * 0.10);
-        summaryHTML += `• Скидка по промокоду (10%) = -${discount} ₽<br>`;
+    if (window.appliedPromo && window.appliedPromoDiscount) {
+        discount = Math.floor(productsTotal * (window.appliedPromoDiscount / 100));
+        summaryHTML += `• Скидка по промокоду (${window.appliedPromoDiscount}%) = -${discount} ₽<br>`;
     }
     
     let total = productsTotal - discount;

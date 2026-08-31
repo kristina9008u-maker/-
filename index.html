@@ -6,7 +6,7 @@
     <title>Зелёный Урожай — Сити-ферма микрозелени</title>
     <!-- Telegram WebApp JS SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="styles.css?v=31">
+    <link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
     <div id="app">
@@ -33,9 +33,16 @@
         </header>
         <!-- КАТАЛОГ ТОВАРОВ -->
         <section id="screen-catalog" class="screen">
+            <!-- ПОИСК -->
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Поиск по названию..." oninput="handleSearch()">
+            </div>
+            
             <nav class="categories">
                 <button class="cat-btn active" data-category="all">Все товары</button>
-            <button class="cat-btn" data-category="instock">🚀 Уже выросло</button>
+                <button class="cat-btn" data-category="favorites">⭐ Избранное</button>
+                <button class="cat-btn" data-category="instock">🚀 Уже выросло</button>
                 <button class="cat-btn" data-category="classic">🌱 Популярное</button>
                 <button class="cat-btn" data-category="salads">🥬 Салаты</button>
                 <button class="cat-btn" data-category="spicy_herbs">🌿 Пряные травы</button>
@@ -231,6 +238,6 @@
         </div>
     </div>
     <!-- СБРОС КЭША С СЕРИЙНЫМ НОМЕРОМ v=66 -->
-    <script src="app.js?v=66"></script>
+    <script src="app.js?v=67"></script>
 </body>
 </html>
