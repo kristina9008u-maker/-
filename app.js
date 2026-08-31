@@ -463,7 +463,6 @@ async function initProfile() {
         
         const savedPhone = localStorage.getItem('micro_phone');
         const savedAddress = localStorage.getItem('micro_address');
-        }
         // Восстанавливаем раздельные поля адреса
         const savedStreet = localStorage.getItem('micro_street');
         const savedHouse = localStorage.getItem('micro_house');
