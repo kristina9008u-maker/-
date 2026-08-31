@@ -1226,7 +1226,11 @@ async function bootApp() {
     const subCheck = document.getElementById("is-subscription");
     if (subCheck) subCheck.addEventListener("change", updateModalSummary);
     if (tg) {
-        try { tg.ready(); tg.expand(); } catch(e){}
+        try { 
+            tg.ready(); 
+            tg.expand(); 
+            if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+        } catch(e){}
     }
     // Обработка параметров синхронизации из URL (обновление статусов)
     try { processUrlSyncParams(); } catch(e){ console.error('Sync params error:', e); }
