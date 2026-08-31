@@ -562,11 +562,13 @@ function handleSearch() {
 
 function toggleFavorite(event, productId) {
     event.stopPropagation();
-    let favs = JSON.parse(localStorage.getItem('micro_favorites') || '[]');
-    if (favs.includes(productId)) {
-        favs = favs.filter(id => id !== productId);
+    // Convert productId to number because PRODUCTS uses integer IDs
+    const idNum = Number(productId);
+    let favs = JSON.parse(localStorage.getItem('micro_favorites') || '[]').map(Number);
+    if (favs.includes(idNum)) {
+        favs = favs.filter(id => id !== idNum);
     } else {
-        favs.push(productId);
+        favs.push(idNum);
     }
     localStorage.setItem('micro_favorites', JSON.stringify(favs));
     renderCatalog(document.querySelector('.cat-btn.active').dataset.category);
@@ -579,7 +581,7 @@ function renderCatalog(category = 'all') {
         catalogContainer.innerHTML = '';
         
         const searchQuery = (document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : '');
-        const favs = JSON.parse(localStorage.getItem('micro_favorites') || '[]');
+        const favs = JSON.parse(localStorage.getItem('micro_favorites') || '[]').map(Number);
         
         let filtered = PRODUCTS;
         if (category === 'favorites') {
