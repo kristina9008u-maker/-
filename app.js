@@ -321,7 +321,7 @@ const demoImages = [
     "https://images.unsplash.com/photo-1574316071802-0d684efa7ab5?w=400&q=80"
 ];
 const PRODUCTS = [
-    {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": 'images/zhavel1.jpg', 'images/zhavel2.jpg'},
+    {"id": 1, "category": "spicy_herbs", "name": "Щавель \"красножильный\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "Images/zhyavel.jpg", "images": ["Images/zhyavel.jpg"]},
     {"id": 2, "category": "spicy_herbs", "name": "Мелиса \"Ароматный лимон\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
     {"id": 3, "category": "spicy_herbs", "name": "Мелиса \"Турецкая\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
     {"id": 4, "category": "spicy_herbs", "name": "Базилик \"Зеленый - генуэзский\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
@@ -333,18 +333,18 @@ const PRODUCTS = [
     {"id": 10, "category": "salads", "name": "Салат \"Вишневая дымка - мини\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
     {"id": 11, "category": "salads", "name": "Салат \"Американский коричневый кудрявый\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
     {"id": 12, "category": "salads", "name": "Капуста \"Мизуна\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
-    {"id": 13, "category": "salads", "name": "Кресс - салат \"Кучерявый\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
-    {"id": 14, "category": "salads", "name": "Кресс - салат \"Крупнолистовой\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
-    {"id": 15, "category": "salads", "name": "Брокколи", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
+    {"id": 13, "category": "salads", "name": "Кресс - салат \"Кучерявый\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/kecher1.jpg", "images": ["Images/kecher1.jpg", "Images/kecher2.jpg"]},
+    {"id": 14, "category": "salads", "name": "Кресс - салат \"Крупнолистовой\"", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/krupnolist1.jpg", "images": ["Images/krupnolist1.jpg", "Images/krupnolist2.jpg"]},
+    {"id": 15, "category": "salads", "name": "Брокколи", "price": 130, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/brok1.jpg", "images": ["Images/brok1.jpg", "Images/brok2.jpg", "Images/brok3.jpg", "Images/brok4.jpg"]},
     {"id": 16, "category": "salads", "name": "Кольраби \"Фиолетово - пурпурный\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
     {"id": 17, "category": "salads", "name": "Горчица красная \"Рэд леон\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
     {"id": 18, "category": "salads", "name": "Горчица салатная \"Веснушка\"", "price": 180, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 15, "img": demoImages[0], "images": demoImages},
-    {"id": 19, "category": "classic", "name": "Редис \"Санго\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
-    {"id": 20, "category": "classic", "name": "Редис \"Ред коралл\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
-    {"id": 21, "category": "classic", "name": "Амарант \"Пэшн\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": demoImages[0], "images": demoImages},
+    {"id": 19, "category": "classic", "name": "Редис \"Санго\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/sango1.jpg", "images": ["Images/sango1.jpg", "Images/sango2.jpg"]},
+    {"id": 20, "category": "classic", "name": "Редис \"Ред коралл\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": "Images/koral1.jpg", "images": ["Images/koral1.jpg", "Images/koral2.jpg", "Images/koral3.jpg"]},
+    {"id": 21, "category": "classic", "name": "Амарант \"Пэшн\"", "price": 250, "weight": "1 лоток (10x15 см)", "growth_min": 40, "growth_max": 45, "img": "Images/amarant1.jpg", "images": ["Images/amarant1.jpg", "Images/amarant2.jpg"]},
     {"id": 22, "category": "classic", "name": "Амарант \"Легенда\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 7, "growth_max": 9, "img": demoImages[0], "images": demoImages},
-    {"id": 23, "category": "classic", "name": "Горох \"Элита\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": demoImages[0], "images": demoImages},
-    {"id": 24, "category": "classic", "name": "Подсолнечник", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": demoImages[0], "images": demoImages},
+    {"id": 23, "category": "classic", "name": "Горох \"Элита\"", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "Images/gor1.jpg", "images": ["Images/gor1.jpg", "Images/gor2.jpg", "Images/gor3.jpg"]},
+    {"id": 24, "category": "classic", "name": "Подсолнечник", "price": 150, "weight": "1 лоток (10x15 см)", "growth_min": 10, "growth_max": 13, "img": "Images/Pod1.jpg", "images": ["Images/Pod1.jpg", "Images/Pod2.jpg", "Images/Pod3.jpg", "Images/Pod4.jpg"]},
 ];
 let cart = {};
 let currentCategory = 'all';
