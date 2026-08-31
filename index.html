@@ -36,7 +36,7 @@
             <!-- ПОИСК -->
             <div class="search-container">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="Поиск по названию..." oninput="handleSearch()">
+                <input type="text" id="search-input" placeholder="Поиск по названию..." enterkeyhint="search" oninput="handleSearch()" onkeydown="if(event.key === 'Enter') this.blur();">
             </div>
             
             <nav class="categories">
