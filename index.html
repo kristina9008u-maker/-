@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MicroLeaf — Свежая микрозелень</title>
+    <title>MicroLeaf — Микрозелень</title>
     <!-- Telegram WebApp JS SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="styles.css?v=32">
@@ -36,7 +36,7 @@
             <!-- ПОИСК -->
             <div class="search-container">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="Поиск по названию..." enterkeyhint="search" oninput="handleSearch()" onkeydown="if(event.key === 'Enter') this.blur();">
+                <input type="text" id="search-input" aria-label="Поиск товаров" placeholder="Поиск по названию..." enterkeyhint="search" oninput="handleSearch()" onkeydown="if(event.key === 'Enter') this.blur();">
             </div>
             
             <nav class="categories">

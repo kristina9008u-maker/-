@@ -1,4 +1,8 @@
 :root {
+    --z-header: 100;
+    --z-overlay: 500;
+    --z-modal: 1000;
+    --z-toast: 2000;
     /* Используем цвет кнопок из темы клиента Telegram, запасной вариант — зеленый */
     --primary-color: var(--tg-theme-button-color, #2e7d32);
     --primary-text: var(--tg-theme-button-text-color, #ffffff);
@@ -920,4 +924,35 @@ body {
 }
 .btn-fav:active {
     transform: scale(0.8);
+}
+
+/* === UTILITY FIXES === */
+/* Disabled button state */
+.btn-add:disabled,
+.btn-qty:disabled,
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Text overflow protection */
+.product-title,
+.order-items-list {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+
+/* Modal body scroll lock */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+/* Keyboard accessibility */
+.btn-qty:focus-visible,
+.btn-add:focus-visible,
+.cat-btn:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }

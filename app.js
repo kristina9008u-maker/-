@@ -31,6 +31,11 @@ function safeDecode(str) {
     }
     return res;
 }
+// HTML-экранирование для защиты от XSS
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 // Универсальная маска форматирования телефона
 function formatPhoneNumber(value) {
     if (!value) return '';
@@ -290,6 +295,7 @@ window.openProfileView = function() {
     if (el) {
         el.classList.remove('hidden');
         el.style.display = 'flex';
+        document.body.classList.add('modal-open');
     }
 };
 window.closeProfileView = function() {
@@ -297,6 +303,7 @@ window.closeProfileView = function() {
     if (el) {
         el.classList.add('hidden');
         el.style.display = 'none';
+        document.body.classList.remove('modal-open');
     }
 };
 window.openCartView = function() {
@@ -304,6 +311,7 @@ window.openCartView = function() {
     if (el) {
         el.classList.remove('hidden');
         el.style.display = 'flex';
+        document.body.classList.add('modal-open');
     }
 };
 window.closeCartView = function() {
@@ -311,6 +319,7 @@ window.closeCartView = function() {
     if (el) {
         el.classList.add('hidden');
         el.style.display = 'none';
+        document.body.classList.remove('modal-open');
     }
 };
 // Список товаров микрозелени с ВРЕМЕННЫМИ РАМКАМИ роста (growth_min и growth_max)
@@ -348,6 +357,7 @@ const PRODUCTS = [
 ];
 let cart = {};
 let currentCategory = 'all';
+let isSubmitting = false;
 window.appliedPromo = null;
 
 // Динамический расчёт МИНИМАЛЬНОЙ даты готовности заказа (по growth_min)
@@ -541,14 +551,14 @@ function renderOrderHistory() {
             let itemsText = itemsTextArr.join(', ');
             card.innerHTML = `
                 <div class="order-card-header">
-                    <span class="order-id-title">Заказ #${displayId}</span>
-                    <span class="order-date">${order.date}</span>
+                    <span class="order-id-title">Заказ #${escapeHtml(String(displayId))}</span>
+                    <span class="order-date">${escapeHtml(order.date)}</span>
                 </div>
                 <div>
-                    <span class="order-status-tag ${statusClass}">${st}</span>
+                    <span class="order-status-tag ${statusClass}">${escapeHtml(st)}</span>
                 </div>
-                <div class="order-items-list">📦 ${itemsText}</div>
-                <div class="order-total-price">💰 ${order.total_price} ₽</div>
+                <div class="order-items-list">📦 ${escapeHtml(itemsText)}</div>
+                <div class="order-total-price">💰 ${escapeHtml(String(order.total_price))} ₽</div>
             `;
             container.appendChild(card);
         });
@@ -658,6 +668,13 @@ function renderCatalog(category = 'all') {
 window.updateQty = function(id, qty) {
     if (tg && tg.HapticFeedback) {
         tg.HapticFeedback.impactOccurred('light');
+    }
+    
+    if (qty > 99) {
+        if (tg && tg.showAlert) {
+            tg.showAlert('Максимальное количество: 99 шт.');
+        }
+        return;
     }
     
     const p = PRODUCTS.find(prod => prod.id == id);
@@ -964,9 +981,9 @@ function initEvents() {
             });
             
             let discount = 0;
-            if (window.appliedPromo === 'GREEN10') {
-                discount = Math.floor(productsTotal * 0.10);
-                itemsArr.push({ product_id: 'promo', name: 'Скидка по промокоду', weight: '-', price: -discount, quantity: 1, total: -discount });
+            if (window.appliedPromo && window.appliedPromoDiscount > 0) {
+                discount = Math.floor(productsTotal * (window.appliedPromoDiscount / 100));
+                itemsArr.push({ product_id: 'promo', name: `Скидка по промокоду ${window.appliedPromo} (${window.appliedPromoDiscount}%)`, weight: '-', price: -discount, quantity: 1, total: -discount });
             }
             
             let totalPrice = productsTotal - discount;
@@ -1039,7 +1056,10 @@ function initEvents() {
             
             fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Telegram-Init-Data': (tg && tg.initData) ? tg.initData : ''
+                },
                 body: JSON.stringify(newOrder)
             })
             .then(response => response.json())
