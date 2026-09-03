@@ -1368,15 +1368,13 @@ window.loadCart = async function() {
         const data = await res.json();
         if (data.success && data.cart && Object.keys(data.cart).length > 0) {
             cart = data.cart;
-            renderCart();
             updateCartUI();
             const activeCat = document.querySelector('.cat-btn.active')?.dataset.category || 'all';
             renderCatalog(activeCat);
-            
-            // Check if we need to auto-open cart
-            if (window.location.search.includes('open_cart=1') || window.location.hash.includes('open_cart=1')) {
-                setTimeout(() => { if (typeof openCart === 'function') openCart(); }, 500);
-            }
+        }
+        // Check if we need to auto-open cart
+        if (window.location.search.includes('open_cart=1') || window.location.hash.includes('open_cart=1')) {
+            setTimeout(() => { if (typeof openCartView === 'function') openCartView(); }, 500);
         }
     } catch(e) { console.error("Cart load failed:", e); }
 };
