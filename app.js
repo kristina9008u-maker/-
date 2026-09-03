@@ -903,7 +903,7 @@ function initEvents() {
             }
             let address;
             if (dType.includes('Самовывоз')) {
-                address = 'Самовывоз из фермы';
+                address = 'Самовывоз (3 микрорайон дом 37)';
             } else {
                 address = `ул. ${streetVal}, д. ${houseVal}`;
                 if (aptVal) address += `, кв. ${aptVal}`;
@@ -1331,7 +1331,42 @@ window.updatePmGalleryDots = function() {
         } else {
             dots[i].classList.remove('active');
         }
+        }
     }
+};
+
+let syncCartTimeout = null;
+window.syncCart = async function() {
+    const u = getTelegramUser();
+    if (!u || !u.id) return;
+    try {
+        await fetch('/api/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: u.id, cart: cart })
+        });
+    } catch(e) { console.error("Cart sync failed:", e); }
+};
+
+window.loadCart = async function() {
+    const u = getTelegramUser();
+    if (!u || !u.id) return;
+    try {
+        const res = await fetch(`/api/cart?user_id=${u.id}`);
+        const data = await res.json();
+        if (data.success && data.cart && Object.keys(data.cart).length > 0) {
+            cart = data.cart;
+            renderCart();
+            updateCartUI();
+            const activeCat = document.querySelector('.cat-btn.active')?.dataset.category || 'all';
+            renderCatalog(activeCat);
+            
+            // Check if we need to auto-open cart
+            if (window.location.search.includes('open_cart=1') || window.location.hash.includes('open_cart=1')) {
+                setTimeout(() => { if (typeof openCart === 'function') openCart(); }, 500);
+            }
+        }
+    } catch(e) { console.error("Cart load failed:", e); }
 };
 
 window.updatePmActions = function() {
@@ -1355,4 +1390,5 @@ window.updatePmActions = function() {
 // Запасной вызов рендера каталога для 100% гарантированного отображения
 window.addEventListener('load', () => {
     try { renderCatalog('all'); } catch(e){}
+    loadCart();
 });
