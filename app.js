@@ -486,7 +486,7 @@ async function initProfile() {
         // Fetch real stats from server
         if (userId) {
             try {
-                const resp = await fetch(`/api/profile?user_id=${userId}`);
+                const resp = await fetch(`https://microleaf-oe4o.onrender.com/api/profile?user_id=${userId}`);
                 const data = await resp.json();
                 if (data.success) {
                     localStorage.setItem('micro_orders_count', data.data.orders_count);
@@ -803,7 +803,7 @@ function initEvents() {
                 
                 try {
                     btnPromo.disabled = true;
-                    const response = await fetch(`/api/check_promo?code=${encodeURIComponent(code)}`);
+                    const response = await fetch(`https://microleaf-oe4o.onrender.com/api/check_promo?code=${encodeURIComponent(code)}`);
                     const result = await response.json();
                     
                     if (result.valid) {
@@ -1341,7 +1341,7 @@ window.syncCart = async function() {
     const u = getTelegramUser();
     if (!u || !u.id) return;
     try {
-        await fetch('/api/cart', {
+        await fetch('https://microleaf-oe4o.onrender.com/api/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: u.id, cart: cart })
@@ -1353,7 +1353,7 @@ window.loadCart = async function() {
     const u = getTelegramUser();
     if (!u || !u.id) return;
     try {
-        const res = await fetch(`/api/cart?user_id=${u.id}`);
+        const res = await fetch(`https://microleaf-oe4o.onrender.com/api/cart?user_id=${u.id}`);
         const data = await res.json();
         if (data.success && data.cart && Object.keys(data.cart).length > 0) {
             cart = data.cart;
