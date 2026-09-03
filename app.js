@@ -558,7 +558,7 @@ function renderOrderHistory() {
                     <span class="order-status-tag ${statusClass}">${escapeHtml(st)}</span>
                 </div>
                 <div class="order-items-list">📦 ${escapeHtml(itemsText)}</div>
-                <div class="order-total-price">💰 ${escapeHtml(String(order.total_price))} ₽</div>
+                <div class="order-total-price">💰 ${escapeHtml(String(order.total_price || 0))} ₽</div>
             `;
             container.appendChild(card);
         });
@@ -1223,27 +1223,32 @@ function pollTelegramUser() {
     }
 }
 async function bootApp() {
-    try {
-        const res = await fetch('https://microleaf-oe4o.onrender.com/api/inventory');
-        INVENTORY = await res.json();
-        Object.keys(INVENTORY).forEach(id => {
-            const qty = INVENTORY[id];
-            if (qty > 0) {
-                const baseProd = PRODUCTS.find(p => p.id == id);
-                if (baseProd) {
-                    PRODUCTS.unshift({
-                        ...baseProd,
-                        id: 'stock_' + baseProd.id,
-                        name: baseProd.name + ' (УЖЕ ВЫРОСЛО)',
-                        category: 'instock',
-                        growth_min: 0,
-                        growth_max: 0,
-                        stock_qty: qty
-                    });
+    fetch('https://microleaf-oe4o.onrender.com/api/inventory')
+        .then(res => res.json())
+        .then(data => {
+            INVENTORY = data;
+            Object.keys(INVENTORY).forEach(id => {
+                const qty = INVENTORY[id];
+                if (qty > 0) {
+                    const baseProd = PRODUCTS.find(p => p.id == id);
+                    if (baseProd) {
+                        PRODUCTS.unshift({
+                            ...baseProd,
+                            id: 'stock_' + baseProd.id,
+                            name: baseProd.name + ' (УЖЕ ВЫРОСЛО)',
+                            category: 'instock',
+                            growth_min: 0,
+                            growth_max: 0,
+                            stock_qty: qty
+                        });
+                    }
                 }
-            }
-        });
-    } catch(e) { console.error('Inventory fetch error:', e); }
+            });
+            // Re-render catalog after inventory loads
+            const activeCat = document.querySelector('.cat-btn.active')?.dataset.category || 'all';
+            renderCatalog(activeCat);
+        })
+        .catch(e => console.error('Inventory fetch error:', e));
 
     const subCheck = document.getElementById("is-subscription");
     if (subCheck) subCheck.addEventListener("change", updateModalSummary);
