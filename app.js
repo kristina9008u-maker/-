@@ -745,6 +745,7 @@ function updateCartUI() {
         }
     }
     renderCartPage(totalItems, totalPrice);
+    if (typeof syncCart === 'function') syncCart();
 }
 function renderCartPage(totalItems, totalPrice) {
     const container = document.getElementById('cart-items-container');
@@ -1330,7 +1331,6 @@ window.updatePmGalleryDots = function() {
             dots[i].classList.add('active');
         } else {
             dots[i].classList.remove('active');
-        }
         }
     }
 };
