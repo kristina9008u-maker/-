@@ -1219,6 +1219,7 @@ function pollTelegramUser() {
     if (u) {
         userLoaded = true;
         initProfile();
+        loadCart();
     }
 }
 async function bootApp() {
@@ -1390,5 +1391,4 @@ window.updatePmActions = function() {
 // Запасной вызов рендера каталога для 100% гарантированного отображения
 window.addEventListener('load', () => {
     try { renderCatalog('all'); } catch(e){}
-    loadCart();
 });
