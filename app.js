@@ -549,6 +549,12 @@ function renderOrderHistory() {
                 itemsTextArr.push(`${name} x${clientItemsMap[name]}`);
             }
             let itemsText = itemsTextArr.join(', ');
+            
+            let finalPrice = order.total_price;
+            if (finalPrice === undefined || finalPrice === null || finalPrice === '') {
+                finalPrice = (order.items || []).reduce((sum, item) => sum + (item.total || (item.price * item.quantity) || 0), 0);
+            }
+
             card.innerHTML = `
                 <div class="order-card-header">
                     <span class="order-id-title">Заказ #${escapeHtml(String(displayId))}</span>
@@ -558,7 +564,7 @@ function renderOrderHistory() {
                     <span class="order-status-tag ${statusClass}">${escapeHtml(st)}</span>
                 </div>
                 <div class="order-items-list">📦 ${escapeHtml(itemsText)}</div>
-                <div class="order-total-price">💰 ${escapeHtml(String(order.total_price || 0))} ₽</div>
+                <div class="order-total-price">💰 ${escapeHtml(String(finalPrice))} ₽</div>
             `;
             container.appendChild(card);
         });
