@@ -2,7 +2,7 @@
 const tg = window.Telegram?.WebApp;
 
 // --- ГЛОБАЛЬНЫЙ СБРОС (ВАЙП) ДАННЫХ КЛИЕНТОВ ---
-const RESET_VERSION = "4.0"; // Смена версии приведет к полному сбросу у всех
+const RESET_VERSION = "3.0"; // Смена версии приведет к полному сбросу у всех
 if (localStorage.getItem('micro_reset_version') !== RESET_VERSION) {
     // Очищаем все данные приложения (история заказов, прогресс, сохраненные адреса)
     localStorage.removeItem('micro_orders_history');
