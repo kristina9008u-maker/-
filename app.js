@@ -992,8 +992,8 @@ function initEvents() {
                 if (totalPrice >= 390) {
                     itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 0, quantity: 1, total: 0 });
                 } else {
-                    totalPrice += 100;
-                    itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 100, quantity: 1, total: 100 });
+                    totalPrice += 150;
+                    itemsArr.push({ product_id: 'delivery', name: 'Доставка (курьер)', weight: '-', price: 150, quantity: 1, total: 150 });
                 }
             }
             
@@ -1151,8 +1151,8 @@ function updateModalSummary() {
         if (total >= 390) {
             summaryHTML += `➖ Доставка (курьер) = 0 ₽ (бесплатно)<br>`;
         } else {
-            deliveryCost = 100;
-            summaryHTML += `➖ Доставка (курьер) = 100 ₽<br>`;
+            deliveryCost = 150;
+            summaryHTML += `➖ Доставка (курьер) = 150 ₽<br>`;
         }
     }
     
