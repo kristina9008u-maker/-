@@ -374,16 +374,10 @@ function setupDatePicker() {
         const qty = cart[id] || 0;
         const p = PRODUCTS.find(prod => prod.id == id);
         if (p) {
-            if (p.category === 'instock') hasInstock = true;
+            if (p.stock_qty > 0) hasInstock = true;
             
             let actualGrowthMin = p.growth_min || 0;
-            if (p.category === 'instock' && qty > p.stock_qty) {
-                const originalId = String(id).replace('stock_', '');
-                const originalP = PRODUCTS.find(prod => prod.id == originalId);
-                if (originalP && originalP.growth_min) {
-                    actualGrowthMin = originalP.growth_min;
-                }
-            } else if (p.category !== 'instock' && actualGrowthMin === 0 && p.id) {
+            if (actualGrowthMin === 0 && p.id) {
                  actualGrowthMin = p.growth_min || 1; // fallback
             }
             
@@ -602,6 +596,8 @@ function renderCatalog(category = 'all') {
         let filtered = PRODUCTS;
         if (category === 'favorites') {
             filtered = filtered.filter(p => favs.includes(p.id));
+        } else if (category === 'instock') {
+            filtered = filtered.filter(p => p.stock_qty > 0);
         } else if (category !== 'all') {
             filtered = filtered.filter(p => p.category === category);
         }
@@ -625,11 +621,11 @@ function renderCatalog(category = 'all') {
             const favIcon = isFav ? '❤️' : '🤍';
             
             let growthText = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}—${p.growth_max} дн.`;
-            if (p.category === 'instock') {
-                growthText = `🚀 Уже выросло (Остаток: ${p.stock_qty} шт.)`;
-            } else {
-                growthText = `🌱 Срок роста: ${growthText}`;
+            let stockHtml = '';
+            if (p.stock_qty > 0) {
+                stockHtml = `<br><span style="color:#d32f2f;font-weight:bold;font-size:12px;">🚀 Уже выросло (Остаток: ${p.stock_qty} шт.)</span>`;
             }
+            growthText = `🌱 Срок роста: ${growthText}${stockHtml}`;
             
             let imagesHtml = '';
             let dotsHtml = '';
@@ -650,7 +646,7 @@ function renderCatalog(category = 'all') {
                     </div>
                     <h3 class="product-title">${p.name}</h3>
                     <p class="product-weight">${p.weight}</p>
-                    <p class="product-growth" ${p.category === 'instock' ? 'style="color:#d32f2f;font-weight:bold;font-size:12px;"' : ''}>${growthText}</p>
+                    <p class="product-growth">${growthText}</p>
                     <p class="product-price">${p.price} ₽</p>
                 </div>
                 <div class="product-actions">
@@ -684,10 +680,10 @@ window.updateQty = function(id, qty) {
     }
     
     const p = PRODUCTS.find(prod => prod.id == id);
-    if (p && p.category === 'instock') {
+    if (p && p.stock_qty > 0) {
         const currentQty = cart[id] || 0;
         if (qty === p.stock_qty + 1 && currentQty === p.stock_qty) {
-//             if(tg && tg.showAlert) { tg.showAlert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); } else { alert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); }
+            if(tg && tg.showAlert) { tg.showAlert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); } else { alert(`В наличии сейчас только ${p.stock_qty} шт.\n\nВы можете заказать больше, но всё, что свыше этого количества, нужно будет подождать (потребуется время на выращивание).`); }
         }
     }
     
@@ -956,7 +952,7 @@ function initEvents() {
                 const qty = cart[id];
                 const p = PRODUCTS.find(prod => prod.id == id);
                 if (p) {
-                    if (p.category === 'instock' && qty > p.stock_qty) {
+                    if (p.stock_qty > 0 && qty > p.stock_qty) {
                         // Split into instock and growing
                         hasInstock = true;
                         hasGrowing = true;
@@ -967,16 +963,12 @@ function initEvents() {
                         itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: p.stock_qty, total: sum1 });
                         
                         const extraQty = qty - p.stock_qty;
-                        const originalId = String(p.id).replace('stock_', '');
-                        const origP = PRODUCTS.find(prod => prod.id == originalId);
-                        if (origP) {
-                            const sum2 = origP.price * extraQty;
-                            productsTotal += sum2;
-                            totalTraysCount += extraQty;
-                            itemsArr.push({ product_id: origP.id, name: origP.name + ' (НА ДОСАДКУ)', weight: origP.weight, price: origP.price, quantity: extraQty, total: sum2 });
-                        }
+                        const sum2 = p.price * extraQty;
+                        productsTotal += sum2;
+                        totalTraysCount += extraQty;
+                        itemsArr.push({ product_id: p.id, name: p.name + ' (НА ДОСАДКУ)', weight: p.weight, price: p.price, quantity: extraQty, total: sum2 });
                     } else {
-                        if (p.category === 'instock') hasInstock = true;
+                        if (p.stock_qty > 0) hasInstock = true;
                         else hasGrowing = true;
                         
                         const sum = p.price * qty;
@@ -1142,7 +1134,7 @@ function updateModalSummary() {
     let hasOversell = false;
     Object.keys(cart).forEach(id => {
         const p = PRODUCTS.find(prod => prod.id == id);
-        if (p && p.category === 'instock' && cart[id] > p.stock_qty) {
+        if (p && p.stock_qty > 0 && cart[id] > p.stock_qty) {
             hasOversell = true;
         }
     });
@@ -1238,15 +1230,7 @@ async function bootApp() {
                 if (qty > 0) {
                     const baseProd = PRODUCTS.find(p => p.id == id);
                     if (baseProd) {
-                        PRODUCTS.unshift({
-                            ...baseProd,
-                            id: 'stock_' + baseProd.id,
-                            name: baseProd.name + ' (УЖЕ ВЫРОСЛО)',
-                            category: 'instock',
-                            growth_min: 0,
-                            growth_max: 0,
-                            stock_qty: qty
-                        });
+                        baseProd.stock_qty = qty;
                     }
                 }
             });
@@ -1291,16 +1275,14 @@ window.openProductModal = function(id) {
     document.getElementById('pm-weight').innerText = p.weight;
     
     let growthText = p.growth_min === p.growth_max ? `${p.growth_min} дн.` : `${p.growth_min}—${p.growth_max} дн.`;
-    if (p.category === 'instock') {
-        growthText = `🚀 Уже выросло (Остаток: ${p.stock_qty} шт.)`;
-        document.getElementById('pm-growth').style.color = '#d32f2f';
-        document.getElementById('pm-growth').style.fontWeight = 'bold';
-    } else {
-        growthText = `🌱 Срок роста: ${growthText}`;
-        document.getElementById('pm-growth').style.color = '';
-        document.getElementById('pm-growth').style.fontWeight = 'normal';
+    let stockHtml = '';
+    if (p.stock_qty > 0) {
+        stockHtml = `<br><span style="color:#d32f2f;font-weight:bold;font-size:12px;">🚀 Уже выросло (Остаток: ${p.stock_qty} шт.)</span>`;
     }
-    document.getElementById('pm-growth').innerText = growthText;
+    growthText = `🌱 Срок роста: ${growthText}${stockHtml}`;
+    document.getElementById('pm-growth').style.color = '';
+    document.getElementById('pm-growth').style.fontWeight = 'normal';
+    document.getElementById('pm-growth').innerHTML = growthText;
     document.getElementById('pm-price').innerText = `${p.price} ₽`;
     document.getElementById('pm-desc').innerText = p.description || "Свежая, хрустящая микрозелень прямо с нашей сити-фермы. Отлично подходит для салатов, бутербродов и украшения блюд.";
     
