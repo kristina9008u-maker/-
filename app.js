@@ -20,6 +20,15 @@ if (localStorage.getItem('micro_reset_version') !== RESET_VERSION) {
 }
 // ----------------------------------------------
 
+window.isFirstOrder = false;
+try {
+    const sp1 = new URLSearchParams(window.location.search);
+    const sp2 = new URLSearchParams(window.location.hash.replace('#', '?'));
+    if (sp1.get('is_first') === '1' || sp2.get('is_first') === '1') {
+        window.isFirstOrder = true;
+    }
+} catch (e) {}
+
 // Декодирование любых уровней URL-кодирования
 function safeDecode(str) {
     if (!str) return '';
@@ -980,9 +989,21 @@ function initEvents() {
             });
             
             let discount = 0;
+            let promoPct = 0;
+            let promoText = '';
+            
             if (window.appliedPromo && window.appliedPromoDiscount > 0) {
-                discount = Math.floor(productsTotal * (window.appliedPromoDiscount / 100));
-                itemsArr.push({ product_id: 'promo', name: `Скидка по промокоду ${window.appliedPromo} (${window.appliedPromoDiscount}%)`, weight: '-', price: -discount, quantity: 1, total: -discount });
+                promoPct = window.appliedPromoDiscount;
+                promoText = `Скидка по промокоду ${window.appliedPromo} (${promoPct}%)`;
+            }
+            if (window.isFirstOrder) {
+                promoPct = Math.max(promoPct, 20);
+                promoText = `🎁 Приветственная скидка (${promoPct}%)`;
+            }
+            
+            if (promoPct > 0) {
+                discount = Math.floor(productsTotal * (promoPct / 100));
+                itemsArr.push({ product_id: 'promo', name: promoText, weight: '-', price: -discount, quantity: 1, total: -discount });
             }
             
             let totalPrice = productsTotal - discount;
@@ -1122,9 +1143,21 @@ function updateModalSummary() {
     });
     
     let discount = 0;
+    let promoPct = 0;
+    let promoText = '';
+
     if (window.appliedPromo && window.appliedPromoDiscount) {
-        discount = Math.floor(productsTotal * (window.appliedPromoDiscount / 100));
-        summaryHTML += `• Скидка по промокоду (${window.appliedPromoDiscount}%) = -${discount} ₽<br>`;
+        promoPct = window.appliedPromoDiscount;
+        promoText = `Скидка по промокоду (${promoPct}%)`;
+    }
+    if (window.isFirstOrder) {
+        promoPct = Math.max(promoPct, 20);
+        promoText = `🎁 Приветственная скидка (${promoPct}%)`;
+    }
+
+    if (promoPct > 0) {
+        discount = Math.floor(productsTotal * (promoPct / 100));
+        summaryHTML += `• ${promoText} = -${discount} ₽<br>`;
     }
     
     let total = productsTotal - discount;
