@@ -969,7 +969,7 @@ function initEvents() {
                         const sum1 = p.price * p.stock_qty;
                         productsTotal += sum1;
                         totalTraysCount += p.stock_qty;
-                        itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: p.stock_qty, total: sum1 });
+                        itemsArr.push({ product_id: 'stock_' + p.id, name: p.name + ' (УЖЕ ВЫРОСЛО)', weight: p.weight, price: p.price, quantity: p.stock_qty, total: sum1 });
                         
                         const extraQty = qty - p.stock_qty;
                         const sum2 = p.price * extraQty;
@@ -983,7 +983,11 @@ function initEvents() {
                         const sum = p.price * qty;
                         productsTotal += sum;
                         totalTraysCount += qty;
-                        itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: qty, total: sum });
+                        if (p.stock_qty > 0) {
+                            itemsArr.push({ product_id: 'stock_' + p.id, name: p.name + ' (УЖЕ ВЫРОСЛО)', weight: p.weight, price: p.price, quantity: qty, total: sum });
+                        } else {
+                            itemsArr.push({ product_id: p.id, name: p.name, weight: p.weight, price: p.price, quantity: qty, total: sum });
+                        }
                     }
                 }
             });
