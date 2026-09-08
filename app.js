@@ -586,7 +586,7 @@ function renderOrderHistory() {
 window.promptUploadReceipt = function(orderId) {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = 'image/*,application/pdf';
     input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
