@@ -1,5 +1,6 @@
 // Инициализация Telegram WebApp SDK
 const tg = window.Telegram?.WebApp;
+const API_BASE_URL = "https://microleaf-oe4o.onrender.com";
 
 // --- ГЛОБАЛЬНЫЙ СБРОС (ВАЙП) ДАННЫХ КЛИЕНТОВ ---
 const RESET_VERSION = "3.0"; // Смена версии приведет к полному сбросу у всех
@@ -489,7 +490,7 @@ async function initProfile() {
         // Fetch real stats from server
         if (userId) {
             try {
-                const resp = await fetch(`https://microleaf-oe4o.onrender.com/api/profile?user_id=${userId}`);
+                const resp = await fetch(`${API_BASE_URL}/api/profile?user_id=${userId}`);
                 const data = await resp.json();
                 if (data.success) {
                     localStorage.setItem('micro_orders_count', data.data.orders_count);
@@ -814,7 +815,7 @@ function initEvents() {
                 
                 try {
                     btnPromo.disabled = true;
-                    const response = await fetch(`https://microleaf-oe4o.onrender.com/api/check_promo?code=${encodeURIComponent(code)}`);
+                    const response = await fetch(`${API_BASE_URL}/api/check_promo?code=${encodeURIComponent(code)}`);
                     const result = await response.json();
                     
                     if (result.valid) {
@@ -879,6 +880,50 @@ function initEvents() {
         document.getElementById('checkout-modal').classList.add('hidden');
         if (tg && tg.MainButton) tg.MainButton.hide();
     };
+
+    // Обработка прикрепления чека об оплате
+    let currentReceiptBase64 = '';
+    const payMethodSelect = document.getElementById('pay-method');
+    const receiptGroup = document.getElementById('receipt-upload-group');
+    const receiptFileInput = document.getElementById('receipt-file');
+    const receiptPreviewContainer = document.getElementById('receipt-preview-container');
+    const receiptPreviewImg = document.getElementById('receipt-preview');
+    const btnRemoveReceipt = document.getElementById('btn-remove-receipt');
+
+    if (payMethodSelect) {
+        payMethodSelect.addEventListener('change', () => {
+            if (payMethodSelect.value === '💳 Перевод по реквизитам') {
+                receiptGroup?.classList.remove('hidden');
+            } else {
+                receiptGroup?.classList.add('hidden');
+            }
+        });
+    }
+
+    if (receiptFileInput) {
+        receiptFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    currentReceiptBase64 = event.target.result;
+                    if (receiptPreviewImg) receiptPreviewImg.src = currentReceiptBase64;
+                    receiptPreviewContainer?.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (btnRemoveReceipt) {
+        btnRemoveReceipt.addEventListener('click', () => {
+            currentReceiptBase64 = '';
+            if (receiptFileInput) receiptFileInput.value = '';
+            if (receiptPreviewImg) receiptPreviewImg.src = '';
+            receiptPreviewContainer?.classList.add('hidden');
+        });
+    }
+
     const orderForm = document.getElementById('order-form');
     if (orderForm) {
         orderForm.onsubmit = (e) => {
@@ -1059,8 +1104,13 @@ function initEvents() {
                 payment_method: payMethod,
                 is_subscription: isSubscription,
                 promo_code: window.appliedPromo || '',
-                delivery_iso: typeof deliveryIso !== 'undefined' ? deliveryIso : ''
+                delivery_iso: typeof deliveryIso !== 'undefined' ? deliveryIso : '',
+                receipt_base64: currentReceiptBase64 || ''
             };
+            currentReceiptBase64 = '';
+            if (receiptFileInput) receiptFileInput.value = '';
+            if (receiptPreviewImg) receiptPreviewImg.src = '';
+            receiptPreviewContainer?.classList.add('hidden');
             const historyJSON = localStorage.getItem('micro_orders_history');
             let history = historyJSON ? JSON.parse(historyJSON) : [];
             history.push(newOrder);
@@ -1076,7 +1126,7 @@ function initEvents() {
             }
 
             // Отправляем заказ на сервер
-            const API_URL = "https://microleaf-oe4o.onrender.com/api/order"; // Облачный сервер (Render)
+            const API_URL = `${API_BASE_URL}/api/order`; // Облачный сервер (Render)
             
             fetch(API_URL, {
                 method: 'POST',
@@ -1237,6 +1287,16 @@ function openCheckoutModal() {
         phoneInput.value = savedPhone ? formatPhoneNumber(savedPhone) : '';
     }
     
+    const payMethodEl = document.getElementById('pay-method');
+    const recGroup = document.getElementById('receipt-upload-group');
+    if (payMethodEl && recGroup) {
+        if (payMethodEl.value === '💳 Перевод по реквизитам') {
+            recGroup.classList.remove('hidden');
+        } else {
+            recGroup.classList.add('hidden');
+        }
+    }
+
     const modalEl = document.getElementById('checkout-modal');
     if (modalEl) modalEl.classList.remove('hidden');
     
@@ -1258,7 +1318,7 @@ function pollTelegramUser() {
     }
 }
 async function bootApp() {
-    fetch('https://microleaf-oe4o.onrender.com/api/inventory')
+    fetch(`${API_BASE_URL}/api/inventory`)
         .then(res => res.json())
         .then(data => {
             INVENTORY = data;
@@ -1371,7 +1431,7 @@ window.syncCart = async function() {
     const u = getTelegramUser();
     if (!u || !u.id) return;
     try {
-        await fetch('https://microleaf-oe4o.onrender.com/api/cart', {
+        await fetch(`${API_BASE_URL}/api/cart`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: u.id, cart: cart })
@@ -1383,7 +1443,7 @@ window.loadCart = async function() {
     const u = getTelegramUser();
     if (!u || !u.id) return;
     try {
-        const res = await fetch(`https://microleaf-oe4o.onrender.com/api/cart?user_id=${u.id}`);
+        const res = await fetch(`${API_BASE_URL}/api/cart?user_id=${u.id}`);
         const data = await res.json();
         if (data.success && data.cart && Object.keys(data.cart).length > 0) {
             cart = data.cart;
