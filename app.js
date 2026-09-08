@@ -559,6 +559,11 @@ function renderOrderHistory() {
                 finalPrice = (order.items || []).reduce((sum, item) => sum + (item.total || (item.price * item.quantity) || 0), 0);
             }
 
+            let receiptBtnHtml = '';
+            if (st === 'Новый' || st === 'Принят') {
+                receiptBtnHtml = `<button class="btn-upload-receipt" onclick="promptUploadReceipt(${displayId})" style="margin-top: 8px; width: 100%; padding: 8px; font-size: 12px; font-weight: 600; background: var(--secondary-bg); color: var(--text-color); border: 1px dashed var(--hint-color); border-radius: 8px; cursor: pointer;">🧾 Прикрепить чек об оплате</button>`;
+            }
+
             card.innerHTML = `
                 <div class="order-card-header">
                     <span class="order-id-title">Заказ #${escapeHtml(String(displayId))}</span>
@@ -569,6 +574,7 @@ function renderOrderHistory() {
                 </div>
                 <div class="order-items-list">📦 ${escapeHtml(itemsText)}</div>
                 <div class="order-total-price">💰 ${escapeHtml(String(finalPrice))} ₽</div>
+                ${receiptBtnHtml}
             `;
             container.appendChild(card);
         });
@@ -576,6 +582,53 @@ function renderOrderHistory() {
         console.error('Order history error:', err);
     }
 }
+
+window.promptUploadReceipt = function(orderId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const b64 = event.target.result;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/upload_receipt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Telegram-Init-Data': (tg && tg.initData) ? tg.initData : ''
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        receipt_base64: b64
+                    })
+                });
+                const resData = await res.json();
+                if (resData.success) {
+                    if (tg && tg.showAlert) {
+                        tg.showAlert(`✅ Чек к заказу #${orderId} успешно передан менеджеру!`);
+                    } else {
+                        alert(`✅ Чек к заказу #${orderId} успешно передан менеджеру!`);
+                    }
+                } else {
+                    if (tg && tg.showAlert) {
+                        tg.showAlert(`Ошибка: ${resData.error || 'Не удалось отправить чек'}`);
+                    } else {
+                        alert(`Ошибка: ${resData.error || 'Не удалось отправить чек'}`);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Ошибка отправки чека. Пожалуйста, отправьте фото чека в чат бота.");
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+};
 function handleSearch() {
     renderCatalog(document.querySelector('.cat-btn.active').dataset.category);
 }
@@ -881,49 +934,6 @@ function initEvents() {
         if (tg && tg.MainButton) tg.MainButton.hide();
     };
 
-    // Обработка прикрепления чека об оплате
-    let currentReceiptBase64 = '';
-    const payMethodSelect = document.getElementById('pay-method');
-    const receiptGroup = document.getElementById('receipt-upload-group');
-    const receiptFileInput = document.getElementById('receipt-file');
-    const receiptPreviewContainer = document.getElementById('receipt-preview-container');
-    const receiptPreviewImg = document.getElementById('receipt-preview');
-    const btnRemoveReceipt = document.getElementById('btn-remove-receipt');
-
-    if (payMethodSelect) {
-        payMethodSelect.addEventListener('change', () => {
-            if (payMethodSelect.value === '💳 Перевод по реквизитам') {
-                receiptGroup?.classList.remove('hidden');
-            } else {
-                receiptGroup?.classList.add('hidden');
-            }
-        });
-    }
-
-    if (receiptFileInput) {
-        receiptFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    currentReceiptBase64 = event.target.result;
-                    if (receiptPreviewImg) receiptPreviewImg.src = currentReceiptBase64;
-                    receiptPreviewContainer?.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    if (btnRemoveReceipt) {
-        btnRemoveReceipt.addEventListener('click', () => {
-            currentReceiptBase64 = '';
-            if (receiptFileInput) receiptFileInput.value = '';
-            if (receiptPreviewImg) receiptPreviewImg.src = '';
-            receiptPreviewContainer?.classList.add('hidden');
-        });
-    }
-
     const orderForm = document.getElementById('order-form');
     if (orderForm) {
         orderForm.onsubmit = (e) => {
@@ -1104,13 +1114,8 @@ function initEvents() {
                 payment_method: payMethod,
                 is_subscription: isSubscription,
                 promo_code: window.appliedPromo || '',
-                delivery_iso: typeof deliveryIso !== 'undefined' ? deliveryIso : '',
-                receipt_base64: currentReceiptBase64 || ''
+                delivery_iso: typeof deliveryIso !== 'undefined' ? deliveryIso : ''
             };
-            currentReceiptBase64 = '';
-            if (receiptFileInput) receiptFileInput.value = '';
-            if (receiptPreviewImg) receiptPreviewImg.src = '';
-            receiptPreviewContainer?.classList.add('hidden');
             const historyJSON = localStorage.getItem('micro_orders_history');
             let history = historyJSON ? JSON.parse(historyJSON) : [];
             history.push(newOrder);
@@ -1287,16 +1292,6 @@ function openCheckoutModal() {
         phoneInput.value = savedPhone ? formatPhoneNumber(savedPhone) : '';
     }
     
-    const payMethodEl = document.getElementById('pay-method');
-    const recGroup = document.getElementById('receipt-upload-group');
-    if (payMethodEl && recGroup) {
-        if (payMethodEl.value === '💳 Перевод по реквизитам') {
-            recGroup.classList.remove('hidden');
-        } else {
-            recGroup.classList.add('hidden');
-        }
-    }
-
     const modalEl = document.getElementById('checkout-modal');
     if (modalEl) modalEl.classList.remove('hidden');
     
